@@ -1,0 +1,11 @@
+[Event "CPES YEAH !!!"] 
+[Site "MLV" ] 
+Date "2020.12.16" ]
+[Round "1" ]
+[White "CC" ]
+[Black "LB"]
+[Time_begin "15:48:34"]
+[WhiteType: "Human]"
+[BlackType: "Human]"
+
+0. 33 44 1. 34x 44x 

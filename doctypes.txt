@@ -1,0 +1,129 @@
+Help on function creer_set in module __main__:
+
+creer_set(version)
+    Permet de generer differente situations de plateau
+    :param version: int, represente different plateau
+    :return: un plateau
+    
+    >>>creer_set(3)
+    >>>([['P', (1, 0)]], [['P', (2, 1)], ['P', (2, 2)]], [])
+
+Help on function read_place in module __main__:
+
+read_place(x, y, j1, j2, mvt_possible, mvt_mange)
+    Permet de savoir le nom de la pieces sur la case(x, y)
+    :param x:int, index d'un tableau (lignes)
+    :param y:int, index du tableau (colonnes)
+    :param j1:list, tableau des pieces du joueur 1
+    :param j2:list, tableau des pieces du noueur 2
+    :param mvt_possible:list, tableau des mouvement possibles
+    :param mvt_mange:list, tableau des pieces a mange possibles
+    :return:le texte de la pieces
+    
+    >>>read_place(1,1,[['P', (1, 1)]],[['P', (1, 0)]], [['XX', (0, 1)]],
+    [['OO', (0, 0)]])
+    >>>' P1 '
+    
+    >>>read_place(1,0,[['P', (1, 1)]],[['P', (1, 0)]], [['XX', (0, 1)]],
+    [['OO', (0, 0)]])
+    >>>' P2 '
+    
+    >>>read_place(0,1,[['P', (1, 1)]],[['P', (1, 0)]], [['XX', (0, 1)]],
+    [['OO', (0, 0)]])
+    >>>' XX '
+    
+    >>>read_place(0,0,[['P', (1, 1)]],[['P', (1, 0)]], [['XX', (0, 1)]],
+    [['OO', (0, 0)]])
+    >>>' OO '
+
+Help on function affiche_set in module __main__:
+
+affiche_set(j1, j2, mvt_possible, mvt_mange)
+    Permet d'afficher les bordures du plateau (en print)
+    Provisoire
+    :param j1:list,tableau des pieces du joueur 1
+    :param j2:list, tableau des pieces du noueur 2
+    :param mvt_possible:list, tableau des mouvement possibles
+    :param mvt_mange:list, tableau des pieces a mange possibles
+    :return:print
+
+Help on function check_position in module __main__:
+
+check_position(x, y, joueur)
+    Permet de verifier si une piece est
+    :param x:int, index d'un tableau (lignes)
+    :param y:int, index du tableau (colonnes)
+    :param joueur: list, tableau de pieces d'un joueur
+    :return:True si il y a une pieces et False si il n'y en a pas
+    
+    >>>check_position(1,1,[['P', (1, 0)]])
+    >>>False
+    
+    >>>check_position(1, 0, [['P', (1, 0)]])
+    >>>True
+
+Help on function name_piece in module __main__:
+
+name_piece(x, y, joueur)
+    Permet de savoir quel pieces est dans la case
+    :param x:int, index d'un tableau (lignes)
+    :param y:int, index du tableau (colonnes)
+    :param joueur: list, tableau de pieces d'un joueur
+    :return:tuple, nom de la pieces et son index dans le tableau du joueur
+    
+    >>>name_piece(0,0,[['R', (0, 3)], ['T', (0, 0)]])
+    >>>('T', 1)
+
+Help on function mvt_p in module __main__:
+
+mvt_p(x, y, joueur, adversaire, id_joueur, prise_passant)
+    Permet de lister les mouvements des pions
+    :param x:int, index d'un tableau (lignes)
+    :param y:int, index du tableau (colonnes)
+    :param joueur: list, tableau de pieces d'un joueur
+    :param adversaire:list, tableau de pieces de l'autre joueur
+    :param id_joueur:int, permet de savoir si le joueur est en haut ou en bas
+    :param prise_passant:List,indique si on est en situation de prise en
+    passant.
+    :return: mvt_pion, mvt_pion_mange (list, list):tableau des mouvement
+    possibles, tableau des pieces pouvant etre mange par le pion.
+    
+    >>> mvt_p(1, 3, ['P', [1, 3], ...], ['P', [6, 1], ...], 1)
+    >>> [(2, 3), (3, 3)] []
+
+Help on function est_dans_plateau in module __main__:
+
+est_dans_plateau(x, y)
+    Permet de verifier si la piece est dans le plateau
+    :param x:int, index d'un tableau (lignes)
+    :param y:int, index du tableau (colonnes)
+    :return:True si la piece est dans le plateau et False sinon
+    
+    >>>est_dans_plateau(1,1)
+    >>>True
+    
+    >>>est_dans_plateau(-1,0)
+    >>>False
+
+Help on function cherche_doublon in module __main__:
+
+cherche_doublon(mouvement, mouvement_mange)
+    Permet de savoir si une case est a la fois dans le tableau mange et/ou mvt
+    :param mouvement:list, tableau des mouvements possibles propre a une piece
+    :param mouvement_mange:list, tableau des mouvements possibles pour
+    manger une piece de l'adversaire
+    :return:list, tableau des coo de la case etant dans les 2 cases cite
+    precedemment
+    
+    >>>cherche_doublon([(1,0), (0,0)], [(0,0)],)
+    >>>[1]
+
+Help on function mvt_c in module __main__:
+
+mvt_c(x, y, joueur, adversaire)
+    :param x:
+    :param y:
+    :param joueur:
+    :param adversaire:
+    :return:
+
