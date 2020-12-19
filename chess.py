@@ -60,6 +60,16 @@ def creer_set(version):
         # Grand Rocque
         j2 = [['R', (7, 3)], ['T', (7, 7)]]
         j1 = [['P', (2, 3)], ['P', (5, 2)]]
+    elif version == 8:
+        # Version Anglaise
+        j1 = [['P', (1, 0)], ['P', (1, 1)], ['P', (1, 2)], ['P', (1, 3)],
+              ['P', (1, 4)], ['P', (1, 5)], ['P', (1, 6)], ['P', (1, 7)],
+              ['R', (0, 0)], ['R', (0, 7)], ['N', (0, 1)], ['N', (0, 6)],
+              ['B', (0, 2)], ['B', (0, 5)], ['K', (0, 3)], ['Q', (0, 4)]]
+        j2 = [['P', (6, 0)], ['P', (6, 1)], ['P', (6, 2)], ['P', (6, 3)],
+              ['P', (6, 4)], ['P', (6, 5)], ['P', (6, 6)], ['P', (6, 7)],
+              ['R', (7, 0)], ['R', (7, 7)], ['N', (7, 1)], ['N', (7, 6)],
+              ['B', (7, 2)], ['B', (7, 5)], ['K', (7, 3)], ['Q', (7, 4)]]
     return j1, j2, []
 
 
@@ -121,7 +131,7 @@ def affiche_set(j1, j2, mvt_possible, mvt_mange):
     :param mvt_mange:list, tableau des pieces a mange possibles
     :return:print
     """
-    print('   H0   G1   F2   E3   D4   C5   B6    A7')
+    print('   A0   B1   C2   D3   E4   F5   G6    H7')
     print(' _________________________________________')
     plateau = []
     for i in range(8):
@@ -136,7 +146,7 @@ def affiche_set(j1, j2, mvt_possible, mvt_mange):
         print('!')
         print(' _______________________________________ ')
     print(' _________________________________________')
-    print('   H0   G1   F2   E3   D4   C5   B6    A7')
+    print('   A0   B1   C2   D3   E4   F5   G6    H7')
 
 
 def check_position(x, y, joueur):
@@ -561,25 +571,10 @@ def sauvegarde(nbcoup, coupj1, coupj2, echec, mat):
     :return:
     """
     fichier = open("data.txt", "a")
-    # colonne = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+    print(f"NB COUPS :{nbcoup}")
     print(f"coup 1 :{coupj1}")
     print(f"coup 2 :{coupj2}")
-    if coupj1[0] == 'P':
-        piecej1 = ""
-    else:
-        piecej1 = coupj1[0]
-    if coupj2[0] == 'P':
-        piecej2 = ""
-    else:
-        piecej2 = coupj2[0]
-    '''
-    fichier.write(f"{nbcoup}. {piecej1}{colonne[int(coupj1[2])]}"
-                  f"{int(coupj1[1])} {piecej2}{colonne[int(coupj2[2])]}"
-                  f"{int(coupj2[1])} ")
-    '''
-    fichier.write(f"{nbcoup}. {piecej1}{coupj1[2]}"
-                  f"{coupj1[1]} {piecej2}{coupj2[2]}"
-                  f"{coupj2[1]} ")
+    fichier.write(f"{nbcoup}. {coupj1} {coupj2} ")
     if nbcoup % 5 == 0 and nbcoup != 0:
         fichier.write("\n")
     fichier.close()
@@ -608,20 +603,115 @@ def fin_jeu(result):
         else:
             fichier.write(readline)
         index += 1
+    fichier.write(f"{result}")
     fichier.close()
 
 
 def demande_case(texte):
     saisie = False
-    while not saisie:  # On tourne jusqu'à avoir une mise entiere
-        try:  # On s'assure que la mise est un entier
-            valeur_saisie = input(texte)
-            to_int = int(valeur_saisie)
-            to_int += 0
-            return valeur_saisie
-        except ValueError:
-            print("Merci de saisir un entier ")
-            saisie = False
+    if texte != "-1-1":
+        while not saisie:  # On tourne jusqu'à avoir une mise entiere
+            try:  # On s'assure que la mise est un entier
+                valeur_saisie = input(texte)
+                to_int = int(valeur_saisie)
+                to_int += 0
+                return valeur_saisie
+            except ValueError:
+                print("Merci de saisir un entier ")
+                saisie = False
+    else:
+        return -1
+
+
+def sauv_deplacement(piece, pos_init_x, pos_init_y, pos_x, pos_y, mange,
+                     ambigu):
+    # colonne = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+    colonne = ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']
+    sauv_piece = ""
+    rocque = False
+    deplacement = ""
+    if piece == 'P':
+        sauv_piece = ""
+    elif piece == 'T':
+        sauv_piece = "R"
+    elif piece == 'C':
+        sauv_piece = "N"
+    elif piece == 'F':
+        sauv_piece = "B"
+    elif piece == 'R':
+        print(f"Rocque ? {pos_y - pos_init_y}")
+        if abs(pos_init_y - pos_y) == 2:
+            deplacement = "O-O"
+            rocque = True
+        elif abs(pos_init_y - pos_y) == 3:
+            deplacement = "O-O-O"
+            rocque = True
+        else:
+            sauv_piece = "K"
+    elif piece == 'D':
+        sauv_piece = "Q"
+    if mange == "x" and piece == "P":
+        mange = colonne[pos_init_y] + mange
+    if not rocque:
+        if ambigu:
+            deplacement = str(sauv_piece + colonne[pos_init_y] + mange + \
+                                                              colonne[pos_y] +
+                                                   str(pos_x + 1))
+        else:
+            deplacement = str(
+                sauv_piece + mange + colonne[pos_y] + str(pos_x + 1))
+    return deplacement
+
+
+def deplacement_autorise(piece, case_x, case_y, joueur_qui_joue, adversaire,
+                         id_mvt, prise_en_passant):
+    ret_list_mvt_deplacement = []
+    ret_list_mvt_mange = []
+    if piece == 'P':
+        ret_list_mvt_deplacement, ret_list_mvt_mange = mvt_p(case_x, case_y,
+                                                     joueur_qui_joue,
+                                                     adversaire, id_mvt,
+                                                     prise_en_passant)
+    elif piece == 'T':
+        ret_list_mvt_deplacement, ret_list_mvt_mange = mvt_t(case_x, case_y,
+                                                     joueur_qui_joue,
+                                                     adversaire)
+    elif piece == 'C':
+        ret_list_mvt_deplacement, ret_list_mvt_mange = mvt_c(case_x, case_y,
+                                                     joueur_qui_joue,
+                                                     adversaire)
+    elif piece == 'F':
+        ret_list_mvt_deplacement, ret_list_mvt_mange = mvt_f(case_x, case_y,
+                                                     joueur_qui_joue,
+                                                     adversaire)
+    elif piece == 'R':
+        ret_list_mvt_deplacement, ret_list_mvt_mange = mvt_r(case_x, case_y,
+                                                     joueur_qui_joue,
+                                                     adversaire, id_mvt)
+    elif piece == 'D':
+        ret_list_mvt_deplacement, ret_list_mvt_mange = mvt_d(case_x, case_y,
+                                                     joueur_qui_joue,
+                                                     adversaire)
+    return ret_list_mvt_deplacement, ret_list_mvt_mange
+
+
+def autre_piece(piece, index_position, joueur):
+    index = 0
+    for e in joueur:
+        if e[0] == piece:
+            if index_position != index:
+                return index
+        index += 1
+    return -1
+
+
+def double_place(mouvement_piece, case_arrivee_x,
+                                        case_arrivee_y):
+    for e in mouvement_piece[0]:
+        x,y = e
+        if x == case_arrivee_x and y == case_arrivee_y:
+            return True
+    return False
 
 
 def chess():
@@ -634,9 +724,10 @@ def chess():
     affiche_set(joueur1, joueur2, mvt_possible, mvt_mange=[])
     jouer = True
     id_joueur = 0
-    nb_coup = 0
-    coupj1 = ""
+    nb_coup = 1
     prise_en_passant = 'False', [['P', (0, 0)]]
+    coupj = ""
+    coupj1 = ""
     while jouer:
         if id_joueur == 0:
             id_mvt = 1
@@ -658,34 +749,21 @@ def chess():
             # case_x = int(input("case x "))
             # case_y = int(input("case y "))
             deplacement = demande_case("case xy")
-            case_x = (int)(deplacement[0])
-            case_y = (int)(deplacement[1])
+            case_x = int(deplacement[0])
+            case_y = int(deplacement[1])
             if check_position(case_x, case_y, joueur_qui_joue):
                 piece, index_position = name_piece(case_x, case_y,
                                                    joueur_qui_joue)
-                if piece == 'P':
-                    list_mvt_deplacement, list_mvt_mange = \
-                        mvt_p(case_x, case_y, joueur_qui_joue, adversaire,
+                list_mvt_deplacement, list_mvt_mange = deplacement_autorise(
+                    piece, case_x, case_y, joueur_qui_joue, adversaire,
                               id_mvt, prise_en_passant)
-                elif piece == 'T':
-                    list_mvt_deplacement, list_mvt_mange = \
-                        mvt_t(case_x, case_y, joueur_qui_joue, adversaire)
-                elif piece == 'C':
-                    list_mvt_deplacement, list_mvt_mange = \
-                        mvt_c(case_x, case_y, joueur_qui_joue, adversaire)
-                elif piece == 'F':
-                    list_mvt_deplacement, list_mvt_mange = \
-                        mvt_f(case_x, case_y, joueur_qui_joue, adversaire)
-                elif piece == 'R':
-                    list_mvt_deplacement, list_mvt_mange = \
-                        mvt_r(case_x, case_y, joueur_qui_joue, adversaire,
-                              id_mvt)
-                elif piece == 'D':
-                    list_mvt_deplacement, list_mvt_mange = \
-                        mvt_d(case_x, case_y, joueur_qui_joue, adversaire)
                 click_ok = True
             if not click_ok:
-                print("Vous coordonnées ne sont pas exactes !")
+                if case_x == -1 and case_y == -1:
+                    click_ok = True
+                    jouer = False
+                else:
+                    print("Vous coordonnées ne sont pas exactes !")
             print(f"list mange {deplacement}")
             print(f"list mange {list_mvt_mange}")
             print(f"list deplacement {list_mvt_deplacement}")
@@ -695,7 +773,6 @@ def chess():
         mvt_mange = creer_mvt(list_mvt_mange, "OO")
         affiche_set(joueur1, joueur2, mvt_possible, mvt_mange)
         piece_avancer = False
-        coupj = ""
         while not piece_avancer:
             # case_arrivee_x = int(input("case arrivee x "))
             # case_arrivee_y = int(input("case arrivee y "))
@@ -703,10 +780,31 @@ def chess():
             case_arrivee_x = int(deplacement[0])
             case_arrivee_y = int(deplacement[1])
             if check_position(case_arrivee_x, case_arrivee_y, mvt_possible):
-                joueur_qui_joue[index_position][1] = \
-                    (case_arrivee_x, case_arrivee_y)
-                coupj = str(piece) + str(case_arrivee_x) + str(
-                    case_arrivee_y)
+                # Ici il faut ajouter une méthode pour savoir si 2 pieces
+                # identiques peuvent être su la meme case
+                ambiguite = False
+                if piece == "T" or piece == "C" or piece == "F":
+                    index_autre_piece = autre_piece(piece, index_position,
+                                                    joueur_qui_joue)
+                    if index_autre_piece >= 0:
+                        # On doit regarder l'ensemble des position possible
+                        mouvement_piece = deplacement_autorise(piece,
+                                    joueur_qui_joue[index_autre_piece][1][0],
+                                    joueur_qui_joue[index_autre_piece][1][1],
+                                    joueur_qui_joue,
+                                    adversaire,
+                                    id_mvt,
+                                    "")
+                        if double_place(mouvement_piece, case_arrivee_x,
+                                        case_arrivee_y):
+                            ambiguite = True
+                        else:
+                            ambiguite = False
+                coupj = sauv_deplacement(piece, case_x, case_y,
+                                         case_arrivee_x,
+                                         case_arrivee_y, "", ambiguite)
+                joueur_qui_joue[index_position][1] = (
+                case_arrivee_x, case_arrivee_y)
                 if piece == 'P':
                     prise_en_passant = 'True', [
                         ['P', (case_arrivee_x, case_arrivee_y)]]
@@ -726,6 +824,7 @@ def chess():
                         joueur_qui_joue[index_position][1] = \
                             (case_x, case_y - 1)
                 piece_avancer = True
+            ambiguite = False
             if not piece_avancer and check_position(case_arrivee_x,
                                                     case_arrivee_y, mvt_mange):
                 joueur_qui_joue[index_position][1] = \
@@ -735,14 +834,38 @@ def chess():
                         case_arrivee_y == prise_en_passant[1][0][1][1]:
                     piece, index_piece_manger = \
                         name_piece(prise_en_passant[1][0][1][0],
-                                  prise_en_passant[1][0][1][1], adversaire)
-                    coupj = str(piece) + "x" + str(case_arrivee_x) + str(
-                        case_arrivee_y)
+                                   prise_en_passant[1][0][1][1], adversaire)
+                    print(f"chess prise en passant")
+                    coupj = sauv_deplacement(piece, case_x, case_y,
+                                             case_arrivee_x,
+                                             case_arrivee_y, "x", ambiguite)
                 else:
-                    piecem, index_piece_manger = \
-                        name_piece(case_arrivee_x, case_arrivee_y, adversaire)
-                    coupj = str(case_y) + "x" + str(case_arrivee_x) + str(
-                        case_arrivee_y)
+                    if piece == "T" or piece == "C" or piece == "F":
+                        index_autre_piece = autre_piece(piece, index_position,
+                                                        joueur_qui_joue)
+                        if index_autre_piece >= 0:
+                            # On doit regarder l'ensemble des position possible
+                            mouvement_piece = deplacement_autorise(piece,
+                                                                   joueur_qui_joue[
+                                                                       index_autre_piece][
+                                                                       1][0],
+                                                                   joueur_qui_joue[
+                                                                       index_autre_piece][
+                                                                       1][1],
+                                                                   joueur_qui_joue,
+                                                                   adversaire,
+                                                                   id_mvt, "")
+                            if double_place(mouvement_piece, case_arrivee_x,
+                                            case_arrivee_y):
+                                ambiguite = True
+                            else:
+                                ambiguite = False
+                    coupj = sauv_deplacement(piece, case_x, case_y,
+                                             case_arrivee_x,
+                                             case_arrivee_y, "x", ambiguite)
+                piecem, index_piece_manger = name_piece(case_arrivee_x,
+                                                        case_arrivee_y,
+                                                        adversaire)
                 adversaire.pop(index_piece_manger)
                 piece_avancer = True
             if not piece_avancer:
@@ -784,4 +907,4 @@ if __name__ == '__main__':
     help(est_dans_plateau)
     help(cherche_doublon)
     help(mvt_c)
-    # chess()
+    chess()
