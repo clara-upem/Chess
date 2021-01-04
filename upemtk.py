@@ -12,6 +12,7 @@ try:
     PIL_AVAILABLE = True
 except ImportError as e:
     PIL_AVAILABLE = False
+    print(e)
 
 __all__ = [
     # gestion de fenêtre
@@ -388,7 +389,8 @@ def image(x, y, fichier, ancrage='center', tag=''):
 # Texte
 
 def texte(x, y, chaine,
-          couleur='black', ancrage='nw', police='Helvetica', taille=24, tag=''):
+          couleur='black', ancrage='nw',  police='Helvetica', taille=24,
+          tag=''):
     """
     Affiche la chaîne ``chaine`` avec ``(x, y)`` comme point d'ancrage (par
     défaut le coin supérieur gauche).
