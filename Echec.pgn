@@ -1,4 +1,4 @@
-[Event "Partie décontractée"]
+[Event "Partie d?contract?e"]
 [Site "?, ?"]
 [Date "2020.12.13"]
 [Round "-"]
@@ -8,8 +8,14 @@
 [Time "20:53:55"]
 [BlackType: "program"]
 
-1. e4 e6 2. Qf3 Nc6 3. Ne2 d5 4. exd5 exd5 5. Nec3 Nf6 
-6. Bd3 Bc5 7. O-O O-O 8. Ne2 Re8 9. Nf4 Bd6 10. Qg3 h6 
-11. Be2 Rxe2 12. Nxe2 Bxg3 13. Nxg3 h5 14. Nf5 Bxf5 15. d3 Nd4 
-16. c3 Ne2 17. Kh1 Ng4 18. Re1 Nxf2 
+1. e4 e6 2. Qf3 Nc6 3. Ne2 d5 4. exd5 exd5 5. Nec3 Nf6
+6. Bd3 Bc5 7. O-O O-O 8. Ne2 Re8 9. Nf4 Bd6 10. Qg3 h6
+11. Be2 Rxe2 12. Nxe2 Bxg3 13. Nxg3 h5 14. Nf5 Bxf5 15. d3 Nd4
+16. c3 Ne2 17. Kh1 Ng4 18. Re1 Nxf2
+0-1
+
+1. e4 e6 2. Qf3 Nc6 3. Ne2 d5 4. exd5 exd5 5. Nec3 Nf6
+6. Bd3 Bc5 7. O-O O-O 8. Ne2 Re8 9. Nf4 Bd6 10. Qg3 h6
+11. Be2 Rxe2 12. Nxe2 Bxg3 13. Nxg3 h5 14. Nf5 Bxf5 15. d3 Nd4
+16. c3 Ne2+ 17. Kh1 Ng4 18. Re1 Nxf2+#
 0-1

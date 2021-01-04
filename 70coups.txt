@@ -1,0 +1,25 @@
+[Event "CPES YEAH !!!"] 
+[Site "MLV" ] 
+Date "2021.  01.  03" ]
+[Round "1" ]
+[White "CC" ]
+[Black "LB"]
+[Time_begin "22:50:51"]
+[Time_end "22:50:52"]
+[Result "0-1"]
+[WhiteType: "Human]"
+[BlackType: "Human]"
+
+1. d4 d5 2. Bg5 Nf6 3. Bxf6 exf6 4. e3 Bd6 5. c4 dxc4 6. Bxc4 O-O 7. Nf3 b6 8. O-O Bb7
+9. Nc3 a6 10. Rc1 Nd7 11. Bd3 Re8 12. Nd2 Rc8 13. Be4 Bxe4 14. Ncxe4 Bf8 15. Qa4 a5
+16. Nc3 c6 17. Rfd1 f5 18. Nf3 b5 19. Qc2 Qf6 20. Qe2 b4 21. Na4 c5 22. Qb5 Qc6
+23. Qxc6 Rxc6 24. dxc5 Nxc5 25. Nd4 Rcc8 26. Nxc5 Rxc5 27. Rxc5 Bxc5 28. Nxf5 g6
+29. Ng3 Bf8 30. Kf1 Rc8 31. Ke2 Bg7 32. b3 f5 33. Rd2 Rc1 34. Kf3 Bc3 35. Rd8+ Kg7
+36. Ne2 Rc2 37. Nxc3 bxc3 38. Rc8 Kf6 39. Rc5 Rxa2 40. Rxc3 Ra3 41. Rc5 Ke6 42. Rb5 Kf6
+43. Rb7 h5 44. h4 a4 45. Rb6+ Kf7 46. bxa4 Rxa4 47. g3 Ra2 48. Rc6 Rb2 49. Ra6 Rc2
+50. Rd6 Ra2 51. Rc6 Rb2 52. Rc1 Kf6 53. Re1 Rb3 54. Re2 Ke5 55. Ra2 Kf6 56. Ra6+ Kg7
+57. Ra4 Kf6 58. Kf4 Rb6 59. Rc4 Ra6 60. Rd4 Rc6 61. Ra4 Rb6 62. f3 Rc6 63. e4 fxe4
+64. fxe4 Rc5 65. Rb4 Ra5 66. Rc4 Rb5 67. Rd4 Ra5 68. Rd6+ Kf7 69. Rd5 Ra3 70. Rb5 Rc3
+71. Ra5 Rb3 72. Rc5 Ra3 73. Rb5 Rc3 74. Rb7+ Ke6 75. Rb6+ Kf7 76. Ra6 Rb3 77. Ra7+ Ke6
+78. Ra6+ Kf7 79. Ke5 Rb5+ 80. Kf4 Rb3 81. Ra5 Ke6 82. Ra4 Kf6 83. Rc4 Ra3 84. Rd4 Ra5
+85. Rd5 Ra4 86. Rd6+ Kf7 87. Kg5 Ra3 88. Rf6+ Ke7 89. Rxg6 Rxg3+ 90. Kxh5 Ra3  1-0

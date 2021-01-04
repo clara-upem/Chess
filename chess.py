@@ -512,6 +512,7 @@ def delete_doublon(mvt_roi, doublon):
     """
     if len(doublon) > 0:
         for index in doublon:
+            print(f"Pop index {index} {len(mvt_roi)}")
             mvt_roi.pop(index)
     return mvt_roi
 
@@ -1558,7 +1559,7 @@ def chess():
 
                         # pion atteint la ligne ennemi et peux se
                         # transformer tout en mangeant
-                        if (case_arrivee_y == 0 or case_arrivee_y == 7) and \
+                        if (case_arrivee_x == 0 or case_arrivee_x == 7) and \
                                 piece == "P":
                             choix = chgmt_pion(joueur_qui_joue)
                             decision = piece_choisit(choix)
