@@ -1,11 +1,10 @@
 [Event "CPES YEAH !!!"] 
 [Site "MLV" ] 
-Date "2021.01.04" ]
+Date "2021.01.05" ]
 [Round "1" ]
 [White "CC" ]
 [Black "LB"]
-[Time_begin "01:53:43"]
+[Time_begin "09:21:07"]
 [WhiteType: "Human]"
 [BlackType: "Human]"
 
-1. e4 g6 
