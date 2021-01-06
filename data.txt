@@ -4,7 +4,8 @@ Date "2021.01.05" ]
 [Round "1" ]
 [White "CC" ]
 [Black "LB"]
-[Time_begin "09:21:07"]
+[Time_begin "19:01:23"]
 [WhiteType: "Human]"
 [BlackType: "Human]"
 
+1. g4 g5 

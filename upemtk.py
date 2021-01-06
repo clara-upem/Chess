@@ -8,7 +8,7 @@ from tkinter.font import Font
 
 try:
     from PIL import Image, ImageTk
-    print("Bibliothèque PIL chargée.", file=sys.stderr)
+    # print("Bibliothèque PIL chargée.", file=sys.stderr)
     PIL_AVAILABLE = True
 except ImportError as e:
     PIL_AVAILABLE = False
