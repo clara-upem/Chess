@@ -1,11 +1,14 @@
-[Event "CPES YEAH !!!"] 
+[Event "Projet Chess"] 
 [Site "MLV" ] 
-Date "2021.01.05" ]
+Date "2021.01.07" ]
 [Round "1" ]
-[White "CC" ]
-[Black "LB"]
-[Time_begin "19:01:23"]
+[White "Joueur1" ]
+[Black "Joueur2"]
+[Time_begin "03:44:11"]
+[Time_end "03:44:26"]
+[Result "1-0"]
 [WhiteType: "Human]"
 [BlackType: "Human]"
 
-1. g4 g5 
+0.  e4 1. e5 f4
+1-0

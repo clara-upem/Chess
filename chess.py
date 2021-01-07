@@ -542,6 +542,7 @@ def mvt_f_diag_x(x, y, joueur, adversaire):
     mvt_fou_temp = []
     mange_fou_temp = []
     for i in range(-8, 8):
+        # On parcours de gauche à droite
         if est_dans_plateau(x + i, y - i) and (x + i, y - i) != (x, y):
             # On trouve une piece adverse que l'on peut manger
             if check_position_piece(x + i, y - i, adversaire):
@@ -561,6 +562,7 @@ def mvt_f_diag_x(x, y, joueur, adversaire):
                     break
                 else:
                     mvt_fou_temp = []
+                    mange_fou_temp = []
     return mvt_fou_temp, mange_fou_temp
 
 
@@ -592,6 +594,8 @@ def mvt_f_diag_y(x, y, joueur, adversaire):
                 break
             else:
                 mvt_fou_temp = []
+                mange_fou_temp = []
+
     return mvt_fou_temp, mange_fou_temp
 
 
@@ -735,22 +739,20 @@ def mvt_r(x, y, joueur, adversaire, index_piece, id_joueur, prise_passant,
         pas_de_piece_pr = True
         for idx_roi in range(1, 3):
             pas_de_piece_pr = pas_de_piece_pr \
-                and not check_position_piece(x, y-idx_roi, joueur) \
-                and not check_position_piece(x, y-idx_roi, adversaire)
+                and not check_position_piece(x, y + idx_roi, joueur) \
+                and not check_position_piece(x, y + idx_roi, adversaire)
         if pas_de_piece_pr:
-            mvt_roi.append((x, y - 2))
+            mvt_roi.append((x, y + 2))
     # Grand rocque
     if not roi_r and not tour_gr:
         pas_de_piece_gr = True
         for idx_roi in range(1, 4):
             pas_de_piece_gr = pas_de_piece_gr \
-                and not check_position_piece(x, y + idx_roi, joueur) \
-                and not check_position_piece(x, y + idx_roi, adversaire)
+                and not check_position_piece(x, y - idx_roi, joueur) \
+                and not check_position_piece(x, y - idx_roi, adversaire)
         if pas_de_piece_gr:
-            mvt_roi.append((x, y + 3))
-    # vprint(f"MVT ROI {mvt_roi} {roi_r} {tour_pr} {tour_gr}")
+            mvt_roi.append((x, y - 2))
     mvt_roi_mange = mvt_mange_list(mvt_roi, adversaire)
-    # print(f"MVT MANGE ROI {mvt_roi_mange} ")
     # On supprimme des mouvements autorises les mouvments mange
     doublon = cherche_doublon(mvt_roi, mvt_roi_mange)
     # print(f"MVT MANGE ROI {doublon} ")
@@ -905,7 +907,6 @@ def mat(joueur, adversaire, id_joueur, id_mvt, prise_passant):
     index_piece = 0
     mange = []
     mvt = []
-    list_echec = []
     for p in joueur:
         if p[0] == "T":
             mvt, mange = mvt_t(p[1][0], p[1][1], joueur, adversaire,
@@ -935,12 +936,16 @@ def mat(joueur, adversaire, id_joueur, id_mvt, prise_passant):
             list_echec = test_reste_en_echec(mvt, index_piece, joueur,
                                              adversaire, id_joueur,
                                              prise_passant)
+            if len(list_echec) == 0:
+                # Il n'y a pas d'echec
+                return False
         if len(mange) > 0:
             list_echec = test_reste_en_echec(mange, index_piece, joueur,
                                              adversaire, id_joueur,
                                              prise_passant)
-        if len(list_echec) == 0:
-            return False
+            if len(list_echec) == 0:
+                # Il n'y a pas d'echec
+                return False
         index_piece += 1
     return True
 
@@ -951,37 +956,46 @@ def pat(joueur, adversaire, id_joueur, id_mvt, prise_passant):
     mange = []
     en_cours_echec = False
     # print(f"Analyse du PAT {id_joueur} {joueur}")
-    for p in joueur:
-        if p[0] == "T":
-            mvt, mange = mvt_t(p[1][0], p[1][1], joueur, adversaire,
-                               index_piece, id_joueur,
-                               prise_passant, en_cours_echec)
-        if p[0] == "F":
-            mvt, mange = mvt_f(p[1][0], p[1][1], joueur, adversaire,
-                               index_piece, id_joueur,
-                               prise_passant, en_cours_echec)
-        if p[0] == "C":
-            mvt, mange = mvt_c(p[1][0], p[1][1], joueur, adversaire,
-                               index_piece, id_joueur, prise_passant,
-                               en_cours_echec)
-        if p[0] == "D":
-            mvt, mange = mvt_d(p[1][0], p[1][1], joueur, adversaire,
-                               index_piece, id_joueur, prise_passant,
-                               en_cours_echec)
-        if p[0] == "P":
-            mvt, mange = mvt_p(p[1][0], p[1][1], joueur, adversaire,
-                               index_piece, id_joueur, id_mvt,
-                               prise_passant, en_cours_echec)
-        if p[0] == "R":
-            mvt, mange = mvt_r(p[1][0], p[1][1], joueur, adversaire,
-                               index_piece, id_joueur, prise_passant,
-                               en_cours_echec)
-        # Ici je n'ai pas de mouvements possible alors que je ne suis pas en
-        # echec je suis en PAT
-        if len(mvt) > 0 or len(mange) > 0:
+    trouve_roi, index_roi = cherche_roi(joueur)
+    if trouve_roi:
+        is_echec = echec(joueur[index_roi][1][0], joueur[
+            index_roi][1][1], adversaire, joueur,
+                         id_joueur, id_mvt, prise_passant, True)
+        if len(is_echec) > 0:
             return False
-        index_piece += 1
-    return True
+        else:
+            for p in joueur:
+                if p[0] == "T":
+                    mvt, mange = mvt_t(p[1][0], p[1][1], joueur, adversaire,
+                                       index_piece, id_joueur,
+                                       prise_passant, en_cours_echec)
+                if p[0] == "F":
+                    mvt, mange = mvt_f(p[1][0], p[1][1], joueur, adversaire,
+                                       index_piece, id_joueur,
+                                       prise_passant, en_cours_echec)
+                if p[0] == "C":
+                    mvt, mange = mvt_c(p[1][0], p[1][1], joueur, adversaire,
+                                       index_piece, id_joueur, prise_passant,
+                                       en_cours_echec)
+                if p[0] == "D":
+                    mvt, mange = mvt_d(p[1][0], p[1][1], joueur, adversaire,
+                                       index_piece, id_joueur, prise_passant,
+                                       en_cours_echec)
+                if p[0] == "P":
+                    mvt, mange = mvt_p(p[1][0], p[1][1], joueur, adversaire,
+                                       index_piece, id_joueur, id_mvt,
+                                       prise_passant, en_cours_echec)
+                if p[0] == "R":
+                    mvt, mange = mvt_r(p[1][0], p[1][1], joueur, adversaire,
+                                       index_piece, id_joueur, prise_passant,
+                                       en_cours_echec)
+                # Ici je n'ai pas de mouvements possible alors que je ne suis
+                #  pas enechec je suis en PAT
+                if len(mvt) > 0 or len(mange) > 0:
+                    return False
+                index_piece += 1
+            return True
+    return False
 
 
 def echec_mon_roi(roi_x, roi_y, joueur_qui_joue_simule, adv_simule,
@@ -1086,14 +1100,19 @@ def empeche_echec(mvt, index_piece, joueur_qui_joue,
 #  Gestion du replay                      #
 ###########################################
 def replay(jeu_str):
-    print(f"fichier a ouvrir {jeu_str}")
     fichier = open(jeu_str, "r")
     readlines = fichier.readlines()
     fichier.close()
     j1, j2, mvt_possible = creer_set(1)
     index = 0
     chaine_coord = ""
+    nom_blanc = "Blanc"
+    nom_noir = "Noir"
     for j in readlines:
+        if index == 4:
+            nom_blanc = j.split()
+        if index == 5:
+            nom_noir = j.split()
         if 11 < index:
             chaine_coord += j
         index += 1
@@ -1101,21 +1120,23 @@ def replay(jeu_str):
     index = 0
     vainqueur_jeu = ""
     partie_joue = []
+    partie_coord = []
     for e in coord:
-        print(f"analyse {e}")
-        if e.find('.') >= 1:
-            # partie_joue.append(deepcopy(j1), deepcopy(j2)))
-            partie_joue.append(deepcopy(j1))
-            partie_joue.append(deepcopy(j2))
-        elif index % 2 == 0:
+        find_dot = e.find('.')
+        if index % 2 == 0 and find_dot < 1:
             index += 1
             id_mvt = -1
             j1, j2 = analyse_piece(e, j1, j2, id_mvt)
-        else:
+            partie_joue.append(deepcopy(j1))
+            partie_joue.append(deepcopy(j2))
+            partie_coord.append(e)
+        elif find_dot < 1:
             index += 1
             id_mvt = 1
             j2, j1 = analyse_piece(e, j2, j1, id_mvt)
-    # partie_joue.append((deepcopy(j1), deepcopy(j2)))
+            partie_joue.append(deepcopy(j1))
+            partie_joue.append(deepcopy(j2))
+            partie_coord.append(e)
     partie_joue.append(deepcopy(j1))
     partie_joue.append(deepcopy(j2))
     if coord[-1] == '0-1':
@@ -1124,7 +1145,7 @@ def replay(jeu_str):
         vainqueur_jeu = "Bravo joueur 1"
     elif coord[-1] == '1-1':
         vainqueur_jeu = "Belle partie nulle"
-    return partie_joue, vainqueur_jeu
+    return partie_joue, vainqueur_jeu, nom_blanc[1], nom_noir[1], partie_coord
 
 
 def analyse_piece(mvt_piece, joueur, adversaire, id_mvt):
@@ -1428,12 +1449,12 @@ def roque_possible(id_joueur):
     """
     if id_joueur == 0:
         roi_r = roi_bouge[0]
-        tour_pr = tour_bouge[0]
-        tour_gr = tour_bouge[1]
+        tour_gr = tour_bouge[0]
+        tour_pr = tour_bouge[1]
     else:
         roi_r = roi_bouge[1]
-        tour_pr = tour_bouge[2]
-        tour_gr = tour_bouge[3]
+        tour_gr = tour_bouge[2]
+        tour_pr = tour_bouge[3]
     return roi_r, tour_pr, tour_gr
 
 
@@ -1448,7 +1469,6 @@ def delete_doublon(mvt_roi, doublon):
     # print(f"{doublon} {mvt_roi}")
     if len(doublon) > 0:
         for index in doublon:
-            print(f"Pop index {index} {len(mvt_roi)}")
             mvt_roi.pop(index)
     return mvt_roi
 
@@ -1487,7 +1507,6 @@ def deplacement_autorise(piece, case_x, case_y, joueur_qui_joue, adversaire,
     ret_list_mvt_deplacement = []
     ret_list_mvt_mange = []
     if piece == 'P':
-        print("Piece pion a deplacer")
         ret_list_mvt_deplacement, ret_list_mvt_mange = mvt_p(case_x, case_y,
                                                              joueur_qui_joue,
                                                              adversaire,
@@ -1536,8 +1555,6 @@ def deplacement_autorise(piece, case_x, case_y, joueur_qui_joue, adversaire,
                                                              id_joueur,
                                                              prise_passant,
                                                              False)
-    print(f" Deplacement Autorise {ret_list_mvt_deplacement} "
-          f"{ret_list_mvt_mange}")
     return ret_list_mvt_deplacement, ret_list_mvt_mange
 
 
@@ -1565,10 +1582,10 @@ def init_sauvegarde(name, site, nb_jeu, white_name, black_name, typej1,
     fichier.write(f'Date "{t.strftime("%Y.%m.%d")}" ]\n')
     fichier.write(f'[Round "{nb_jeu}" ]\n')
     fichier.write(f'[White "{white_name}" ]\n')
-    fichier.write(f'[Black "{black_name}"]\n')
+    fichier.write(f'[Black "{black_name}" ]\n')
     fichier.write(f'[Time_begin "{t.strftime("%H:%M:%S")}"]\n')
-    fichier.write(f'[WhiteType: "{typej1}]"\n')
-    fichier.write(f'[BlackType: "{typej2}]"\n\n')
+    fichier.write(f'[WhiteType: "{typej1} ]"\n')
+    fichier.write(f'[BlackType: "{typej2} ]"\n\n')
     fichier.close()
 
 

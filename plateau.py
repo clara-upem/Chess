@@ -70,6 +70,12 @@ from chess import transforme_pion
 from chess import roi_bouge
 from chess import tour_bouge
 from chess import sauv_deplacement
+from chess import cherche_roi
+from chess import echec
+from chess import mat
+from chess import init_sauvegarde
+from chess import sauvegarde
+from chess import fin_jeu
 
 from copy import deepcopy
 
@@ -128,6 +134,13 @@ def test_touche(nom, evenement, taille):
         if len(nom) < taille:
             nom += touche(evenement)
     return nom
+
+
+def inverse_id_joueur(id_joueur):
+    if id_joueur == 0:
+        return 1
+    else:
+        return 0
 
 
 #########################################
@@ -292,11 +305,9 @@ def affiche_param_joueur(ecran, rayon, param):
         elif type_ev(ev) == 'ClicGauche':
             joueur_focus = click_param_joueur(abscisse_souris(),
                                               ordonnee_souris())
-            print(f"focus {joueur_focus}")
             param, valide = click_cercle_param_joueur(ecran, rayon,
                                                       abscisse_souris(),
                                                       ordonnee_souris(), param)
-            print(f"retour click {param} {valide}")
         # Texte nom du joueur
         texte(40, 160, 'JOUEUR 1 :', 'black', 'nw', 'Helvetica', 24)
         rectangle(180, 150, 600, 200)
@@ -491,7 +502,7 @@ def affiche_param_init(ecran, rayon):
         # Choix de la position initiale
         texte(40, 225, "Standard", 'black', 'nw', 'Helvetica', 15)
         texte(40, 255, "Prise en passant", 'black', 'nw', 'Helvetica', 15)
-        texte(40, 285, 'Rocque', 'black', 'nw', 'Helvetica', 15)
+        texte(40, 285, 'Roque', 'black', 'nw', 'Helvetica', 15)
         texte(40, 315, 'Pion evolution', 'black', 'nw', 'Helvetica', 15)
         texte(40, 345, 'deplacement tour', 'black', 'nw', 'Helvetica', 15)
         texte(40, 375, 'deplacement fou', 'black', 'nw', 'Helvetica', 15)
@@ -646,7 +657,8 @@ def check_position_mouvement(pox_x, pos_y, list_mvt):
 ###########################################
 #  Fonctions Dessin du jeux               #
 ###########################################
-def dessine_jeu(largeur, largeur_jeu, decallage_plateau, nb_carre_ligne, name):
+def dessine_jeu(largeur, largeur_jeu, decallage_plateau, nb_carre_ligne, name,
+                action_replay, action_apprentissage):
     """
     Permet de dessiner un plateau de jeu avec des carrees rouge ou blanc
     en fonction du plateau de jeu
@@ -655,6 +667,8 @@ def dessine_jeu(largeur, largeur_jeu, decallage_plateau, nb_carre_ligne, name):
     :param decallage_plateau:
     :param nb_carre_ligne:
     :param name:
+    :param action_replay
+    :param action_apprentissage
     :return: Affichage upemtk du plateau
 
     """
@@ -678,14 +692,15 @@ def dessine_jeu(largeur, largeur_jeu, decallage_plateau, nb_carre_ligne, name):
               top_label_y - regul_police + ratio // 2, str(i + 1),
               taille=regul_police * 2)
         top_label_y += ratio
-    # dessine les cases du jeu
-    dessine_case(False, nb_carre_ligne, top_x, top_y, ratio, largeur,
-                 largeur_jeu, [], [])
-    image(top_x + (3 * largeur_jeu // 4), largeur - 50, "I_avance.png")
+    if action_replay:
+        # dessine les cases du jeu
+        image(top_x + (3 * largeur_jeu // 4), largeur - 50, "I_avance.png")
+        image(top_x + (largeur_jeu // 4), largeur - 50, "I_recul.png")
+    elif not action_apprentissage:
+        image(125, largeur - 50, "I_Inverse.png")
     rectangle(top_x + (2 * largeur_jeu // 4) - 40, largeur - 75,
               top_x + (2 * largeur_jeu // 4) + 38, largeur - 27, epaisseur=4)
-    image(top_x + (largeur_jeu // 4), largeur - 50, "I_recul.png")
-    image(50, largeur - 50, "I_recul.png")
+    image(50, largeur - 50, "I_stop.png")
     mise_a_jour()
 
 
@@ -721,16 +736,16 @@ def dessine_plateau(largeur, largeur_jeu, decallage_plateau, nb_carre_ligne,
         joueur_b = j1
         joueur_n = j2
         if param[1] == "B":
-            tour_joueur = "A: " + str(param[0])
+            tour_joueur = str(param[0])
         else:
-            tour_joueur = "A: " + str(param[3])
+            tour_joueur = str(param[3])
     else:
         joueur_b = j2
         joueur_n = j1
         if param[1] == "N":
-            tour_joueur = "A: " + str(param[0])
+            tour_joueur = str(param[0])
         else:
-            tour_joueur = "A: " + str(param[3])
+            tour_joueur = str(param[3])
     if sens_jeux == 1:
         texte(20, top_y + (ratio // 4), param[3], taille=24, tag="joueur")
         texte(20, ratio * (nb_carre_ligne + 1), param[0],
@@ -780,8 +795,8 @@ def dessine_case(clear_mouvement, nb_carre_ligne, top_x, top_y, ratio, largeur,
     :return:
     """
     efface('case')
-    remplissage_paire = "brown"
-    remplissage_impaire = "white"
+    remplissage_paire = "white"
+    remplissage_impaire = "brown"
     for line in range(nb_carre_ligne):
         for col in range(nb_carre_ligne):
             if line % 2 == col % 2:
@@ -817,6 +832,35 @@ def dessine_mvt(symbole, list_mvt, largeur, largeur_jeu, decallage_plateau,
         texte(piece_x, piece_y, symbole, tag="mvt")
 
 
+def dessine_piece_choisit(choix, couleur):
+    x = 30
+    y = 30
+    piece_selectionnee = ""
+    for selection in choix:
+        piece = "P_" + selection + "_" + couleur
+        dessine_piece(piece, x, y)
+        x += 50
+    evolution = False
+    while not evolution:
+        attend_clic_gauche()
+        evolution, piece_selectionnee = \
+            check_decision(abscisse_souris(), ordonnee_souris(), choix)
+    return piece_selectionnee
+
+
+def check_decision(pos_x, pos_y, choix):
+    print(choix)
+    if 10 < pos_x < 50 and 10 < pos_y < 50:
+        return True, choix[0]
+    elif 60 < pos_x < 100 and 10 < pos_y < 50 and len(choix) > 1:
+        return True, choix[1]
+    elif 110 < pos_x < 150 and 10 < pos_y < 50 and len(choix) > 2:
+        return True, choix[2]
+    elif 160 < pos_x < 200 and 10 < pos_y < 50 and len(choix) > 3:
+        return True, choix[3]
+    return False, ""
+
+
 def rafraichir_plateau(clear_mouvement, nb_case_echec, top_x, top_y, ratio,
                        taille_ecran, taille_jeu, sens_jeux, joueur_qui_joue,
                        adversaire,  list_mvt_deplacement, list_mvt_mange,
@@ -835,6 +879,20 @@ def rafraichir_case(clear_mouvement, nb_case_echec, top_x, top_y, ratio,
     dessine_case(clear_mouvement, nb_case_echec, top_x, top_y, ratio,
                  taille_ecran, taille_jeu, list_mvt_deplacement,
                  list_mvt_mange)
+
+
+def dessine_coup_joueur(nb_case_echec, ratio, mouv):
+    efface('mouv')
+    texte(20, ratio * (nb_case_echec + 1) // 2 + 80, mouv, taille=24,
+          tag="mouv")
+    mise_a_jour()
+
+
+def dessine_tour_joueur(nb_case_echec, ratio, joueur):
+    efface("tour")
+    texte(20, ratio * (nb_case_echec + 1) // 2 + 50, joueur,
+          taille=24, tag="tour")
+    mise_a_jour()
 
 
 ###########################################
@@ -868,25 +926,22 @@ def position_initiale(definition, param):
     if (param[2] == -1 and param[1] == "B") or (
             param[2] == 1 and param[1] == "N"):
         joueur_blanc, joueur_noir = inverse_plateau(joueur_blanc, joueur_noir)
-    print(f"Position Initiale JB {joueur_blanc}")
-    print(f"Position Initiale JN {joueur_noir}")
-    print(f"Position Initiale Parametres {param}")
     return joueur_blanc, joueur_noir
 
 
 def init_plateau():
-    normal = ("Standard", "rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR w "
+    normal = ("Standard", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w "
                           "KQkq - 0 1")
-    prise_en_passant = ("Prise en passant", "8/pppp1ppp/8/3Pp3/8/8/8/8 w "
-                                            "KQkq e4 0 1")
-    rocque = ("Rocque", "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1")
+    prise_en_passant = ("Le Pion", "8/ppppppp/8/8/8/8/PPPPPPPP/8 w "
+                                   "KQkq - 0 1")
+    rocque = ("Rocque", "r2k3r/8/8/8/8/8/8/R2K3R w KQkq - 0 1")
     pion_upgrade = ("Pion Upgrade", "8/P/8/43/8/8/p/8 w KQkq - 0 1")
-    deplacment_tour = ("Tour", "8/8/8/4r3/8/8/8/8 w KQkq - 0 1")
-    deplacement_fou = ("Fou", "8/8/8/4b3/8/8/8/8 w KQkq - 0 1")
-    deplacement_cheval = ("Cheval", "8/8/8/4n3/8/8/8/8 w KQkq - 0 1")
-    deplacement_roi = ("Le Roi", "8/8/8/4k3/8/8/8/8 w KQkq - 0 1")
-    deplacement_dame = ("La Dame", "8/8/8/4q3/8/8/8/8 w KQkq - 0 1")
-    deplacement_pion = ("Le Pion", "8/ppp2ppp/3p4/4p3/8/3P4/PPPpPPPP/8 w "
+    deplacment_tour = ("Tour", "8/8/8/3rR3/8/8/8/8 w KQkq - 0 1")
+    deplacement_fou = ("Fou", "8/8/8/3bB3/8/8/8/8 w KQkq - 0 1")
+    deplacement_cheval = ("Cheval", "8/8/8/3nN3/8/8/8/8 w KQkq - 0 1")
+    deplacement_roi = ("Le Roi", "8/8/8/3kK3/8/8/8/8 w KQkq - 0 1")
+    deplacement_dame = ("La Dame", "8/8/8/3qQ3/8/8/8/8 w KQkq - 0 1")
+    deplacement_pion = ("Le Pion", "8/PPp2ppp/3p4/4p3/8/3P4/PPPpPPpp/8 w "
                                    "KQkq - 0 1")
     mat_2_coups = [("Tigran Gharamian", "8/8/8/8/1B6/NN6/pk1K4/8 w - 0 ""0"), (
         "Anthony Wirig", "8/1p1P1p2/8/2pPp3/2PkP3/3P4/3K4/8 w - 0 0"),
@@ -940,8 +995,6 @@ def set_joueur(option, init, gameplay, plateau, param):
         else:
             jb, jn = position_initiale(plateau[0][1], param)
             gameplay_name = plateau[0][0]
-    print(f"Set Joueur Joueur Blanc {jb} ")
-    print(f"Set Joueur Joueur Noir {jn} ")
     return jb, jn, gameplay_name
 
 
@@ -1020,12 +1073,9 @@ def inverse_groupement_mouvement(replay_jeu_complet):
     inv_replay_list = []
     inv_replay_piece = []
     for list_mvt in replay_jeu_complet:
-        print(f"list mvt {list_mvt}")
         for piece in list_mvt:
-            print(f"list piece {piece} {piece[1]}")
             inv_replay_piece.append((piece[0], inverse_mouvement(piece[1])))
         inv_replay_list.append(inv_replay_piece)
-    print(f" INV {len(inv_replay_list)} {inv_replay_list}")
     return inv_replay_list
 
 
@@ -1037,15 +1087,30 @@ def is_mouvement_ambigu(pos_x, pos_y, mouvement_piece, mange_mouvement_piece):
         return False
 
 
+def inverse_tour_bouge():
+    temp = tour_bouge[0]
+    tour_bouge[0] = tour_bouge[1]
+    tour_bouge[1] = temp
+    temp = tour_bouge[2]
+    tour_bouge[2] = tour_bouge[3]
+    tour_bouge[3] = temp
+
+
 ###########################################
 #  Fonctions Action sur Plateau           #
 ###########################################
+def check_sortir(pos_x, pos_y):
+    if 25 < pos_x < 75 and 625 < pos_y < 675:
+        return True
+    return False
+
+
 def check_inverse(pos_x, pos_y, nb_case_echec, top_x, top_y,
                   ratio, taille_ecran, taille_jeu, param, list_mvt,
                   list_mvt_mange, joueur_qui_joue, adversaire,
                   replay_jeu_complet, decallage_plateau, id_mvt, sens_jeux,
                   nb_coup_joue, id_joueur):
-    if 25 < pos_x < 75 and 625 < pos_y < 675:
+    if 100 < pos_x < 150 and 625 < pos_y < 675:
         joueur_qui_joue, adversaire = inverse_plateau(joueur_qui_joue,
                                                       adversaire)
         list_mvt_deplacement = inverse_list_mouvement(list_mvt)
@@ -1053,6 +1118,7 @@ def check_inverse(pos_x, pos_y, nb_case_echec, top_x, top_y,
         replay_jeu_complet = inverse_groupement_mouvement(replay_jeu_complet)
         id_mvt *= -1
         sens_jeux *= -1
+        inverse_tour_bouge()
         rafraichir_plateau(True, nb_case_echec, top_x, top_y, ratio,
                            taille_ecran, taille_jeu, sens_jeux,
                            joueur_qui_joue, adversaire,
@@ -1067,11 +1133,11 @@ def check_inverse(pos_x, pos_y, nb_case_echec, top_x, top_y,
 def check_avance(pos_x, pos_y, idx_partie, nb_case_echec, top_x, top_y, ratio,
                  taille_ecran, taille_jeu, list_mvt_deplacement,
                  list_mvt_mange, joueur_qui_joue, replay_jeu_complet,
-                 decallage_plateau, sens_jeux, param, nb_coup_joue, id_joueur):
+                 decallage_plateau, sens_jeux, param, nb_coup_joue, id_joueur,
+                 ):
     joueur = joueur_qui_joue
     if 515 < pos_x < 565 and 625 < pos_y < 675:
         nb_coup_partie = len(replay_jeu_complet)
-        print(f"AVANCE {nb_coup_partie} IDx {idx_partie}")
         idx_partie += 1
         if idx_partie < nb_coup_partie:
             adversaire = replay_jeu_complet[idx_partie]
@@ -1095,7 +1161,6 @@ def check_recul(pos_x, pos_y, idx_partie, nb_case_echec, top_x, top_y, ratio,
                 nb_coup_joue, id_joueur):
     joueur = joueur_qui_joue
     if 265 < pos_x < 315 and 625 < pos_y < 675:
-        print(f"RECUL IDX partie {idx_partie}")
         idx_partie -= 2
         if idx_partie > 0:
             joueur = replay_jeu_complet[idx_partie - 2]
@@ -1118,35 +1183,55 @@ def check_recul(pos_x, pos_y, idx_partie, nb_case_echec, top_x, top_y, ratio,
 def nouveau_tour(change_joueur, id_joueur, param, joueur_qui_joue, adversaire,
                  id_mvt, nb_coup_joue, nb_case_echec, top_x, top_y, ratio,
                  taille_ecran, taille_jeu, sens_jeux, list_mvt_deplacement,
-                 list_mvt_mange, decallage_plateau):
-    print("ON ENTRE DANS NOUVEAU TOUR")
-    print(f"{change_joueur} {id_joueur}")
+                 list_mvt_mange, decallage_plateau, prise_passant,
+                 is_prise_passant, coupj, coupj1, coupj2):
     new_joueur_qui_joue = deepcopy(joueur_qui_joue)
     new_adversaire = deepcopy(adversaire)
-
     rafraichir_plateau(True, nb_case_echec, top_x, top_y, ratio,
                        taille_ecran, taille_jeu, sens_jeux,
                        joueur_qui_joue, adversaire,
                        list_mvt_deplacement, list_mvt_mange,
                        decallage_plateau, param, nb_coup_joue, id_joueur)
-
+    dessine_coup_joueur(nb_case_echec, ratio, coupj)
     if change_joueur:
+        if len(coupj2) > 0:
+            sauvegarde(nb_coup_joue // 2, coupj1, coupj2)
+            coupj2 = ""
+            coupj1 = coupj
+        else:
+            coupj2 = coupj
         if id_joueur == 0:
             id_mvt *= -1
             new_joueur_qui_joue = deepcopy(adversaire)
             new_adversaire = deepcopy(joueur_qui_joue)
             id_joueur = 1
+            if param[1] == "N":
+                dessine_tour_joueur(nb_case_echec, ratio, param[0])
+            else:
+                dessine_tour_joueur(nb_case_echec, ratio, param[3])
         else:
             id_joueur = 0
             id_mvt *= -1
             new_joueur_qui_joue = deepcopy(adversaire)
             new_adversaire = deepcopy(joueur_qui_joue)
+            if param[1] == "B":
+                dessine_tour_joueur(nb_case_echec, ratio, param[0])
+            else:
+                dessine_tour_joueur(nb_case_echec, ratio, param[3])
+
         change_joueur = False
         nb_coup_joue += 1
-    print(f"{new_joueur_qui_joue}")
-    print(f"{new_adversaire}")
+        # Je viens d'ajuter une prise en passant, le joueur n'a qu'un tour
+        # pour l'utiliser
+        if is_prise_passant:
+            val, piece = prise_passant
+            prise_passant = False, piece
+            is_prise_passant = False
+        if prise_passant[0]:
+            is_prise_passant = True
     return (id_joueur, id_mvt, new_joueur_qui_joue, new_adversaire,
-            change_joueur, nb_coup_joue)
+            change_joueur, nb_coup_joue, prise_passant, is_prise_passant,
+            coupj1, coupj2)
 
 
 def check_piece_jeu(pos_x, pos_y, piece, index_pos, nb_case_echec, top_x,
@@ -1154,34 +1239,26 @@ def check_piece_jeu(pos_x, pos_y, piece, index_pos, nb_case_echec, top_x,
                     list_mvt_deplacement, list_mvt_mange, id_joueur, id_mvt,
                     prise_passant, joueur_qui_joue, adversaire,
                     decallage_plateau, change_joueur, sens_jeux, param,
-                    nb_coup_joue):
-    print("PIECE JEUX")
+                    nb_coup_joue, old_x, old_y):
     if check_position_piece(pos_x, pos_y, joueur_qui_joue):
-        print("test OK")
         piece, index_pos = name_piece(pos_x, pos_y, joueur_qui_joue)
         list_mvt_deplacement, list_mvt_mange = \
             deplacement_autorise(piece, pos_x, pos_y, joueur_qui_joue,
                                  adversaire,  id_joueur, id_mvt, index_pos,
                                  prise_passant)
-        print(f"check Piece jeu {list_mvt_deplacement} mange {list_mvt_mange}")
         # On affiche les mouvemement possibles
         rafraichir_plateau(True, nb_case_echec, top_x, top_y, ratio,
                            taille_ecran, taille_jeu, sens_jeux,
                            joueur_qui_joue, adversaire,
                            list_mvt_deplacement, list_mvt_mange,
                            decallage_plateau, param, nb_coup_joue, id_joueur)
-        # A voir
         rafraichir_case(True, nb_case_echec, top_x, top_y, ratio,
                         taille_ecran, taille_jeu, list_mvt_deplacement,
                         list_mvt_mange)
         change_joueur = False
-    print(f"Check_Piece_jeu Piece {piece} idx position {index_pos}")
-    print(f"X: {pos_x} Y: {pos_y} Joueur {id_joueur} {id_mvt}")
-    print(f"Joueur qui joue {joueur_qui_joue}")
-    print(f"Joueur 2 {adversaire} Change joueur {change_joueur}")
-    print(f"mvt {list_mvt_deplacement}  mange {list_mvt_mange}")
-    print(f"sens_jeux {sens_jeux}  mange {nb_coup_joue}")
-    return (list_mvt_deplacement, list_mvt_mange, piece, pos_x, pos_y,
+        return (list_mvt_deplacement, list_mvt_mange, piece, pos_x, pos_y,
+                index_pos, change_joueur)
+    return (list_mvt_deplacement, list_mvt_mange, piece, old_x, old_y,
             index_pos, change_joueur)
 
 
@@ -1189,13 +1266,10 @@ def check_mouvement_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
                         list_mvt_deplacement,
                         list_mvt_mange, id_joueur, id_mvt, prise_passant,
                         joueur_qui_joue, adversaire,
-                        change_joueur):
+                        change_joueur, sens_jeux, param, coupj):
     decision = ""
-    coupj = ""
     ambiguite = False
-    print("DEPLACEMENT")
     if check_position_mouvement(pos_x, pos_y, list_mvt_deplacement):
-        print("test OK")
         if piece == "T" or piece == "C" or piece == "F":
             bouge_tour_roque(piece, old_x, old_y, param, sens_jeux)
             idx_autre_piece = autre_piece(piece, index_pos, joueur_qui_joue)
@@ -1220,27 +1294,31 @@ def check_mouvement_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
             # pion atteint la ligne ennemi et peux se transformer
             if pos_x == 0 or pos_x == 7:
                 choix = chgmt_pion(joueur_qui_joue)
-                decision = piece_choisit(choix)
+                decision = dessine_piece_choisit(choix, "B")
                 joueur_qui_joue = transforme_pion(joueur_qui_joue, index_pos,
                                                   decision)
-            # Erreur de gestion de prise en passant a regarder
-            prise_passant = 'True', [['P', (pos_x, pos_y)]]
+            if abs(pos_x - old_x) > 1:
+                prise_passant = 'True', [['P', (pos_x, pos_y)]]
         if piece == 'R':
             if id_joueur == 0:
                 roi_bouge[0] = True
             else:
                 roi_bouge[1] = True
             # Il s'agit d'un petit Roque
-            if abs(old_y - pos_y > 1) and pos_y > old_y:
-                piece, index_pos = name_piece(old_x, 7, joueur_qui_joue)
+            print(f"{old_y} Pos {pos_y}")
+            print(f"{abs(old_y - pos_y) > 1} {pos_y > old_y}")
+            if abs(old_y - pos_y) > 1 and pos_y > old_y:
+                print("PR")
+                _, index_pos = name_piece(old_x, 7, joueur_qui_joue)
+                print(f"PR {name_piece(old_x, 0, joueur_qui_joue)}")
                 joueur_qui_joue[index_pos][1] = (old_x, old_y + 1)
             # Il s'agit d'un grand rocque
             if abs(old_y - pos_y > 1) and pos_y < old_y:
                 _, index_pos = name_piece(old_x, 0, joueur_qui_joue)
+                print(f"{name_piece(old_x, 0, joueur_qui_joue)}")
                 joueur_qui_joue[index_pos][1] = (old_x, old_y - 1)
         coupj = sauv_deplacement(piece, old_y, pos_x, pos_y, "",
                                  ambiguite, decision)
-        print(f"mouvement jeu {joueur_qui_joue}")
         # On affiche les mouvemement possibles
         '''
         rafraichir_plateau(False, nb_case_echec, top_x, top_y, ratio,
@@ -1252,65 +1330,58 @@ def check_mouvement_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
         list_mvt_deplacement = []
         list_mvt_mange = []
         change_joueur = True
-    print(f"check_mouvement_jeu Piece {piece} idx position {index_pos}")
-    print(f"X: {pos_x} Y: {pos_y} Joueur {id_joueur} {id_mvt}")
-    print(f"Joueur 1 {joueur_qui_joue}")
-    print(f"Joueur 2 {adversaire} Change joueur {change_joueur}")
-    print(f"mvt {list_mvt_deplacement}  mange {list_mvt_mange}")
-    print(f"coupj {coupj}  prise passant {prise_passant}")
     return (coupj, prise_passant, change_joueur, list_mvt_deplacement,
-            list_mvt_mange)
+            list_mvt_mange, coupj)
 
 
 def bouge_tour_roque(piece, old_x, old_y, param, sens_jeux):
+    print(f"{param} {sens_jeux} {old_x} {old_y}")
     if piece == "T":
         if (param[1] == "B" and param[2] == -1) or \
-                (param[1] == "N" and param[2] == 1) and sens_jeux == -1:
-            blanc_bas = True
-        else:
+                (param[1] == "N" and param[2] == 1):
             blanc_bas = False
+        else:
+            blanc_bas = True
+        if sens_jeux == -1:
+            blanc_bas = not blanc_bas
         if (old_x, old_y) == (0, 0):
-            if not blanc_bas:
-                tour_bouge[0] = False
-            else:
-                tour_bouge[2] = False
-        elif (old_x, old_y) == (0, 7):
-            if not blanc_bas:
-                tour_bouge[0] = False
-            else:
-                tour_bouge[2] = False
-        elif(old_x, old_y) == (7, 7):
             if blanc_bas:
-                tour_bouge[1] = False
+                tour_bouge[3] = True
             else:
-                tour_bouge[3] = False
+                tour_bouge[1] = True
+        elif (old_x, old_y) == (0, 7):
+            if blanc_bas:
+                tour_bouge[2] = True
+            else:
+                tour_bouge[0] = True
+        elif (old_x, old_y) == (7, 7):
+            if blanc_bas:
+                tour_bouge[2] = True
+            else:
+                tour_bouge[0] = True
         elif (old_x, old_y) == (7, 0):
             if blanc_bas:
-                tour_bouge[1] = False
+                tour_bouge[3] = True
             else:
-                tour_bouge[3] = False
+                tour_bouge[1] = True
 
 
 def check_mouvement_mange_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
                               list_mvt_deplacement,
                               list_mvt_mange, id_joueur, id_mvt, prise_passant,
                               joueur_qui_joue, adversaire,
-                              change_joueur, sens_jeux, param):
-    coupj = ""
+                              change_joueur, sens_jeux, param, coupj):
     decision = ""
     ambiguite = False
-    print("MANGE")
     if check_position_mouvement(pos_x, pos_y, list_mvt_mange):
-        print("test OK")
         joueur_qui_joue[index_pos][1] = (pos_x, pos_y)
         # Coup prise en passant
         if prise_passant[0] and pos_x == int(
                             prise_passant[1][0][1][0]) + 1 * id_mvt and \
                 pos_y == prise_passant[1][0][1][1]:
-            piece, index_piece_manger = \
+            piecem, index_piece_manger = \
                             name_piece(prise_passant[1][0][1][0],
                                        prise_passant[1][0][1][1], adversaire)
-            # Attention ambiguite n'est pas forcement à false
             coupj = sauv_deplacement(piece, old_y, old_x, pos_y, "x",
                                      ambiguite, "")
         else:
@@ -1347,32 +1418,36 @@ def check_mouvement_mange_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
                                                   decision)
             coupj = sauv_deplacement(piece, old_y, pos_x, pos_y, "x",
                                      ambiguite, decision)
-        piecem, index_piece_manger = name_piece(pos_x,
-                                                pos_y,
-                                                adversaire)
-        print(f"On mange la piece adverse {pos_x} {pos_y}")
-        print(f"On mange la piece adverse {piecem} {index_piece_manger}")
-        print(f"On mange la piece adverse {adversaire}")
-        adversaire.pop(index_piece_manger)
-        # On affiche le plateau
-        '''
-        rafraichir_plateau(False, nb_case_echec, top_x, top_y, ratio,
-                           taille_ecran, taille_jeu, sens_jeux,
-                           joueur_qui_joue, adversaire,
-                           list_mvt_deplacement, list_mvt_mange,
-                           decallage_plateau, param, nb_coup_joue, id_joueur)                
-        '''
+            piecem, index_piece_manger = name_piece(pos_x,
+                                                    pos_y,
+                                                    adversaire)
+        if index_piece_manger > 0:
+            adversaire.pop(index_piece_manger)
         list_mvt_deplacement = []
         list_mvt_mange = []
         change_joueur = True
-    print(f"check_mange_jeu Piece {piece} idx position {index_pos}")
-    print(f"X: {pos_x} Y: {pos_y} Joueur {id_joueur} {id_mvt}")
-    print(f"Joueur 1 {joueur_qui_joue}")
-    print(f"Joueur 2 {adversaire} Change joueur {change_joueur}")
-    print(f"mvt {list_mvt_deplacement}  mange {list_mvt_mange}")
-    print(f"coupj {coupj}  prise passant {prise_passant}")
     return (coupj, joueur_qui_joue, adversaire, change_joueur,
-            list_mvt_deplacement, list_mvt_mange)
+            list_mvt_deplacement, list_mvt_mange, coupj)
+
+
+def check_echec(id_joueur, id_mvt, prise_passant, joueur_qui_joue, adversaire):
+    trouve_roi, index_roi = cherche_roi(joueur_qui_joue)
+    if trouve_roi:
+        is_echec = echec(joueur_qui_joue[index_roi][1][0], joueur_qui_joue[
+                         index_roi][1][1], adversaire, joueur_qui_joue,
+                         id_joueur, id_mvt, prise_passant, True)
+        if len(is_echec) > 0:
+            return True
+    return False
+
+
+def check_mat(joueur_qui_joue, adversaire, id_joueur, id_mvt, prise_passant):
+    trouve_roi, index_roi = cherche_roi(joueur_qui_joue)
+    if trouve_roi:
+        if mat(joueur_qui_joue, adversaire, id_joueur, id_mvt, prise_passant):
+            print("echec et MAT!!")
+            return True
+    return False
 
 
 def joue(param, jb, jn, nb_case_echec, taille_ecran, taille_jeu,
@@ -1394,90 +1469,221 @@ def joue(param, jb, jn, nb_case_echec, taille_ecran, taille_jeu,
     id_joueur = 0
     id_mvt = int(param[2] * -1)
     nb_coup_joue = 0
+    is_prise_en_passant = False
+    old_x = 0
+    old_y = 0
+    coupj = ""
+    coupj1 = ""
+    coupj2 = ""
+    joueur_gagnant = 0
+    if param[1] == "B":
+        init_sauvegarde("Projet Chess", "MLV", 1, param[0], param[3], "Human",
+                        "Human")
+    else:
+        init_sauvegarde("Projet Chess", "MLV", 1, param[3], param[0], "Human",
+                        "Human")
     while jouer:
         # A chaque tour on inverse le joueur
-        print("#####################################")
-        print(f"APPEL NOUVEAU TOUR {id_mvt} {param}")
         (id_joueur, id_mvt, joueur_qui_joue, adversaire, nouveau_round,
-         nb_coup_joue) = nouveau_tour(nouveau_round, id_joueur, param,
-                                      joueur_qui_joue, adversaire,
-                                      id_mvt, nb_coup_joue, nb_case_echec,
-                                      top_x, top_y, ratio, taille_ecran,
-                                      taille_jeu, sens_jeux,
-                                      list_mvt_deplacement,
-                                      list_mvt_mange, decallage_plateau)
-        print("##############################################################")
-        print(f"On change de user si TRUE {nouveau_round}")
-        print(f"ID joueur : {id_joueur} {param}")
-        print(f"ID MVT {id_mvt}")
-        print(f"JQJ {joueur_qui_joue}")
-        print(f"ADV {adversaire}")
-        # A chaque tour on vérifie qu'il n'y a pas PAT
-        if pat(joueur_qui_joue, adversaire, id_joueur, id_mvt, prise_passant):
+         nb_coup_joue, prise_passant, is_prise_en_passant, coupj1, coupj2,) = \
+            nouveau_tour(nouveau_round, id_joueur, param, joueur_qui_joue,
+                         adversaire, id_mvt, nb_coup_joue, nb_case_echec,
+                         top_x, top_y, ratio, taille_ecran, taille_jeu,
+                         sens_jeux, list_mvt_deplacement,
+                         list_mvt_mange, decallage_plateau, prise_passant,
+                         is_prise_en_passant, coupj, coupj1, coupj2)
+
+        if pat(joueur_qui_joue, adversaire, id_joueur, id_mvt,
+               prise_passant):
             print("PAT !!!")
-            gain.append("PAT")
+            gain = "PAT"
+            attend_clic_gauche()
             jouer = False
         else:
-            # On attend l'action qui consite à cliqer sur une piece et la
-            # déplacer
-            attend_clic_gauche()
-            # On recupère la piece sur laquelle on a clique, on vérifie quelle
-            # est dans le jeu
-            pos_y, pos_x = pixel_vers_case(top_x, top_y, abscisse_souris(),
-                                           ordonnee_souris(), ratio)
-            (list_mvt_deplacement, list_mvt_mange, piece, old_x, old_y,
-             index_pos, nouveau_round) = \
-                check_piece_jeu(pos_x, pos_y, piece, index_pos, nb_case_echec,
-                                top_x, top_y, ratio, taille_ecran, taille_jeu,
-                                list_mvt_deplacement, list_mvt_mange,
-                                id_joueur, id_mvt, prise_passant,
-                                joueur_qui_joue, adversaire,
-                                decallage_plateau, nouveau_round, sens_jeux,
-                                param, nb_coup_joue)
-            # TEST REPLAY
-            # On regarde si on a cliquer sur un mouvement sans manger
-            (coupj, prise_passant, nouveau_round,
-             list_mvt_deplacement, list_mvt_mange) = \
-                check_mouvement_jeu(pos_x, pos_y, piece, old_x, old_y,
-                                    index_pos, list_mvt_deplacement,
-                                    list_mvt_mange, id_joueur, id_mvt,
-                                    prise_passant, joueur_qui_joue,
-                                    adversaire, nouveau_round)
-            # On regarde si on a cliquer sur un mouvement en mangeant
-            (coupj, joueur_qui_joue, adversaire, nouveau_round,
-             list_mvt_deplacement, list_mvt_mange) = \
-                check_mouvement_mange_jeu(pos_x, pos_y, piece, old_x, old_y,
-                                          index_pos, list_mvt_deplacement,
-                                          list_mvt_mange, id_joueur, id_mvt,
-                                          prise_passant, joueur_qui_joue,
-                                          adversaire, nouveau_round, sens_jeux,
-                                          param)
-            # Gestion de l'avance de la partie (chargé ou en cours) si clique
-            joueur_qui_joue, idx_partie, nb_coup_joue = \
-                check_avance(abscisse_souris(), ordonnee_souris(), idx_partie,
-                             nb_case_echec, top_x, top_y, ratio, taille_ecran,
-                             taille_jeu, list_mvt_deplacement,
-                             list_mvt_mange, joueur_qui_joue,
-                             replay_jeu_complet, decallage_plateau, sens_jeux,
-                             param, nb_coup_joue, id_joueur)
-            # Gestion du recul de la partie (chargé ou en cours) si clique
-            joueur_qui_joue, idx_partie, nb_coup_joue = \
-                check_recul(abscisse_souris(), ordonnee_souris(), idx_partie,
-                            nb_case_echec, top_x, top_y, ratio, taille_ecran,
-                            taille_jeu, list_mvt_deplacement,
-                            list_mvt_mange, joueur_qui_joue, adversaire,
-                            replay_jeu_complet, decallage_plateau, sens_jeux,
-                            param, nb_coup_joue, id_joueur)
-            # Gestion de l'inversion de plateau en cours de jeu si clique
-            (joueur_qui_joue, adversaire, list_mvt_deplacement, list_mvt_mange,
-             replay_jeu_complet, param, id_mvt, sens_jeux) = \
-                check_inverse(abscisse_souris(),
-                              ordonnee_souris(), nb_case_echec, top_x, top_y,
-                              ratio, taille_ecran, taille_jeu, param,
-                              list_mvt_deplacement, list_mvt_mange,
-                              joueur_qui_joue, adversaire,
-                              replay_jeu_complet, decallage_plateau, id_mvt,
-                              sens_jeux, nb_coup_joue, id_joueur)
+            # A chaque tour on vérifie qu'il n'y a pas MAT
+            if check_echec(id_joueur, id_mvt, prise_passant, joueur_qui_joue,
+                           adversaire):
+                print("ECHEC")
+                coupj += "+"
+            if check_mat(joueur_qui_joue, adversaire, id_joueur, id_mvt,
+                         prise_passant):
+                gain = "MAT"
+                joueur_gagnant = id_joueur
+                coupj += "#"
+                attend_clic_gauche()
+                jouer = False
+            else:
+                # On attend l'action qui consite à cliqer sur une piece et la
+                # déplacer
+                attend_clic_gauche()
+                # On recupère la piece sur laquelle on a clique, on vérifie
+                # quelle est dans le jeu
+                pos_y, pos_x = pixel_vers_case(top_x, top_y, abscisse_souris(),
+                                               ordonnee_souris(), ratio)
+                # A chaque tour on vérifie qu'il ne veut pas sortir
+                if check_sortir(abscisse_souris(), ordonnee_souris()):
+                    jouer = False
+                else:
+                    (list_mvt_deplacement, list_mvt_mange, piece, old_x, old_y,
+                     index_pos, nouveau_round) = \
+                        check_piece_jeu(pos_x, pos_y, piece, index_pos,
+                                        nb_case_echec,
+                                        top_x, top_y, ratio, taille_ecran,
+                                        taille_jeu,
+                                        list_mvt_deplacement, list_mvt_mange,
+                                        id_joueur, id_mvt, prise_passant,
+                                        joueur_qui_joue, adversaire,
+                                        decallage_plateau, nouveau_round,
+                                        sens_jeux,
+                                        param, nb_coup_joue, old_x, old_y)
+                    # On regarde si on a cliquer sur un mouvement sans manger
+                    (coupj, prise_passant, nouveau_round,
+                     list_mvt_deplacement, list_mvt_mange, coupj) = \
+                        check_mouvement_jeu(pos_x, pos_y, piece, old_x, old_y,
+                                            index_pos, list_mvt_deplacement,
+                                            list_mvt_mange, id_joueur, id_mvt,
+                                            prise_passant, joueur_qui_joue,
+                                            adversaire, nouveau_round,
+                                            sens_jeux, param, coupj)
+                    # On regarde si on a cliquer sur un mouvement en mangeant
+                    (coupj, joueur_qui_joue, adversaire, nouveau_round,
+                     list_mvt_deplacement, list_mvt_mange, coupj) = \
+                        check_mouvement_mange_jeu(pos_x, pos_y, piece, old_x,
+                                                  old_y,
+                                                  index_pos,
+                                                  list_mvt_deplacement,
+                                                  list_mvt_mange, id_joueur,
+                                                  id_mvt,
+                                                  prise_passant,
+                                                  joueur_qui_joue,
+                                                  adversaire, nouveau_round,
+                                                  sens_jeux,
+                                                  param, coupj)
+                    # Gestion de l'avance de la partie (chargé ou en cours)
+                    # si clique
+                    joueur_qui_joue, idx_partie, nb_coup_joue = \
+                        check_avance(abscisse_souris(), ordonnee_souris(),
+                                     idx_partie,
+                                     nb_case_echec, top_x, top_y, ratio,
+                                     taille_ecran,
+                                     taille_jeu, list_mvt_deplacement,
+                                     list_mvt_mange, joueur_qui_joue,
+                                     replay_jeu_complet, decallage_plateau,
+                                     sens_jeux,
+                                     param, nb_coup_joue, id_joueur)
+                    # Gestion du recul de la partie (chargé ou en cours)
+                    # si clique
+                    joueur_qui_joue, idx_partie, nb_coup_joue = \
+                        check_recul(abscisse_souris(), ordonnee_souris(),
+                                    idx_partie,
+                                    nb_case_echec, top_x, top_y, ratio,
+                                    taille_ecran,
+                                    taille_jeu, list_mvt_deplacement,
+                                    list_mvt_mange, joueur_qui_joue,
+                                    adversaire,
+                                    replay_jeu_complet, decallage_plateau,
+                                    sens_jeux,
+                                    param, nb_coup_joue, id_joueur)
+                    # Gestion de l'inversion de plateau en cours de jeu
+                    # si clique
+                    (joueur_qui_joue, adversaire, list_mvt_deplacement,
+                     list_mvt_mange,
+                     replay_jeu_complet, param, id_mvt, sens_jeux) = \
+                        check_inverse(abscisse_souris(),
+                                      ordonnee_souris(), nb_case_echec, top_x,
+                                      top_y,
+                                      ratio, taille_ecran, taille_jeu, param,
+                                      list_mvt_deplacement, list_mvt_mange,
+                                      joueur_qui_joue, adversaire,
+                                      replay_jeu_complet, decallage_plateau,
+                                      id_mvt,
+                                      sens_jeux, nb_coup_joue, id_joueur)
+    if gain == "PAT":
+        fin_jeu("1-1")
+    elif joueur_gagnant == 0:
+        fin_jeu("1-0")
+    elif joueur_gagnant == 1:
+        fin_jeu("0-1")
+    else:
+        fin_jeu("1-1")
+    print("Merci à bientot")
+
+
+###########################################
+#  Fonctions Action de jeu                #
+###########################################
+def check_action_replay(pos_x, pos_y, ratio, taille_ecran, taille_jeu,
+                        replay_jeu_complet, decallage_plateau, nb_coup_joue,
+                        nb_case_echec, top_x, top_y, sens_jeux, param,
+                        id_joueur, partie_coord):
+    nb_coup_partie = len(replay_jeu_complet)
+    joueur = []
+    adversaire = []
+    if 515 < pos_x < 565 and 625 < pos_y < 675:
+        nb_coup_joue += 2
+        if 0 < nb_coup_joue < nb_coup_partie:
+            joueur = replay_jeu_complet[nb_coup_joue]
+            adversaire = replay_jeu_complet[nb_coup_joue + 1]
+            id_joueur = inverse_id_joueur(id_joueur)
+        else:
+            nb_coup_joue -= 2
+    elif 265 < pos_x < 315 and 625 < pos_y < 675:
+        nb_coup_joue -= 2
+        if 0 < nb_coup_joue < nb_coup_partie:
+            joueur = replay_jeu_complet[nb_coup_joue]
+            adversaire = replay_jeu_complet[nb_coup_joue + 1]
+            id_joueur = inverse_id_joueur(id_joueur)
+        else:
+            nb_coup_joue = 0
+    else:
+        return nb_coup_joue, id_joueur
+    if id_joueur == 0 and param[1] == "B":
+        rafraichir_plateau(False, nb_case_echec, top_x, top_y, ratio,
+                           taille_ecran, taille_jeu, sens_jeux,
+                           joueur, adversaire,
+                           [], [], decallage_plateau, param,
+                           nb_coup_joue, id_joueur)
+    else:
+        rafraichir_plateau(False, nb_case_echec, top_x, top_y, ratio,
+                           taille_ecran, taille_jeu, sens_jeux,
+                           adversaire, joueur,
+                           [], [], decallage_plateau, param,
+                           nb_coup_joue, id_joueur)
+    idx_mouv = (nb_coup_joue - 2) // 2
+    if idx_mouv >= len(partie_coord):
+        idx_mouv = len(partie_coord) - 1
+    mouv = partie_coord[idx_mouv]
+    dessine_coup_joueur(nb_case_echec, ratio,  mouv)
+    return nb_coup_joue, id_joueur
+
+
+def joue_replay(nb_case_echec,  taille_ecran,
+                taille_jeu, decallage_plateau, replay_jeu_complet,
+                param, sens_jeux, partie_coord):
+    ratio = taille_jeu // nb_case_echec
+    top_x = taille_ecran - decallage_plateau - taille_jeu
+    top_y = (taille_ecran - taille_jeu) // 2
+    nb_coup_joue = 0
+    id_joueur = 0
+    # Gestion de l'avance de la partie (chargé ou en cours)
+    rafraichir_plateau(False, nb_case_echec, top_x, top_y, ratio,
+                       taille_ecran, taille_jeu, sens_jeux,
+                       replay_jeu_complet[0], replay_jeu_complet[1],
+                       [], [], decallage_plateau, param,
+                       nb_coup_joue, id_joueur)
+    # si clique
+    jouer = True
+    while jouer:
+        nb_coup_joue, id_joueur = \
+            check_action_replay(abscisse_souris(), ordonnee_souris(),
+                                ratio, taille_ecran, taille_jeu,
+                                replay_jeu_complet, decallage_plateau,
+                                nb_coup_joue,
+                                nb_case_echec, top_x, top_y, sens_jeux, param,
+                                id_joueur, partie_coord)
+        attend_clic_gauche()
+        if nb_coup_joue > len(replay_jeu_complet):
+            jouer = False
 
 
 def main():
@@ -1488,7 +1694,7 @@ def main():
     decallage_plateau = 30
     rayon_selection = 50
     # Configuration Blanc en Bas
-    param = ["Joueur1", "B", 1, "Joueur2"]
+    param = ["Joueur1", "B", -1, "Joueur2"]
     cree_fenetre(taille_ecran, taille_ecran)
     affiche_ouverture(taille_ecran, "chess.png")
     menu = 0
@@ -1500,6 +1706,9 @@ def main():
     joueur_blanc = []
     joueur_noir = []
     replay_jeu_complet = []
+    partie_coord = []
+    action_replay = False
+    action_apprentissage = False
     while menu < 3:
         efface_tout()
         menu = affiche_accueil(taille_ecran, rayon_selection)
@@ -1512,41 +1721,58 @@ def main():
             elif option == 2:
                 file_replay = affiche_param_replay(taille_ecran,
                                                    rayon_selection)
+                action_apprentissage = False
             elif option == 3:
                 init, gameplay = affiche_param_init(taille_ecran,
                                                     rayon_selection)
+                file_replay = ""
+                action_apprentissage = True
         # On joue
         elif menu == 2:
             if (param[1] == "B" and param[2] == -1) or \
                     (param[1] == "N" and param[2] == 1):
-                sens_jeux = -1
-            else:
                 sens_jeux = 1
+            else:
+                sens_jeux = -1
             if file_replay == "":
-                joueur_blanc, joueur_noir, gameplay_name = set_joueur(option,
-                                                                      init,
-                                                                      gameplay,
-                                                                      plateau,
-                                                                      param)
+                joueur_blanc, joueur_noir, gameplay_name = \
+                    set_joueur(option, init, gameplay, plateau, param)
                 replay_jeu_complet.append(joueur_blanc)
                 replay_jeu_complet.append(joueur_noir)
+                action_replay = False
             elif len(file_replay) > 0:
-                replay_jeu_complet, gameplay_name = replay(
-                    file_replay + ".txt")
+                replay_jeu_complet, gameplay_name, nom_blanc, nom_noir,\
+                    partie_coord = replay(file_replay + ".txt")
+                param[0] = nom_blanc
+                param[1] = "B"
+                param[2] = -1
+                param[3] = nom_noir
                 joueur_blanc, joueur_noir = position_initiale(plateau[0][1],
                                                               param)
-            print(f"param {param}")
-            print(f"Set Joueur Joueur Blanc {joueur_blanc} ")
-            print(f"Set Joueur Joueur Noir {joueur_noir} ")
-            # On affiche le plateau avec les bon paramètre
-            dessine_jeu(taille_ecran, taille_jeu, decallage_plateau,
-                        nb_case_echec, gameplay_name)
-            dessine_plateau(taille_ecran, taille_jeu, decallage_plateau,
-                            nb_case_echec, joueur_blanc, joueur_noir,
-                            sens_jeux, 0, param, 0)
-            # On lance le jeu
-            joue(param, joueur_blanc, joueur_noir, nb_case_echec, taille_ecran,
-                 taille_jeu, decallage_plateau, replay_jeu_complet, sens_jeux)
+                replay_jeu_complet.insert(0, joueur_noir)
+                replay_jeu_complet.insert(0, joueur_blanc)
+                action_replay = True
+            if action_replay:
+                # On affiche le plateau avec les bon paramètre
+                dessine_jeu(taille_ecran, taille_jeu, decallage_plateau,
+                            nb_case_echec, gameplay_name, action_replay,
+                            action_apprentissage)
+                joue_replay(nb_case_echec, taille_ecran, taille_jeu,
+                            decallage_plateau, replay_jeu_complet, param, -1,
+                            partie_coord)
+                menu = 1
+            else:
+                action_replay = False
+                # On affiche le plateau avec les bon paramètre
+                dessine_jeu(taille_ecran, taille_jeu, decallage_plateau,
+                            nb_case_echec, gameplay_name, action_replay,
+                            action_apprentissage)
+                # On lance le jeu
+                joue(param, joueur_blanc, joueur_noir, nb_case_echec,
+                     taille_ecran,
+                     taille_jeu, decallage_plateau, replay_jeu_complet,
+                     sens_jeux)
+                menu = 1
     generique(taille_ecran)
     ferme_fenetre()
 
