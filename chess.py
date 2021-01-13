@@ -1,7 +1,9 @@
-__authors__ = ("Clara Correia", "Laurie Behloul")
-__contact__ = ("clara.correia.sne@gmail.com", "lauriebehloul1@gmail.com")
+# coding: utf-8
+__authors__ = ("Clara CORREIA", "Laurie BEHLOUL", "Thalya LAUPA")
+__contact__ = ("clara.correia.sne@gmail.com", "lauriebehloul1@gmail.com",
+               "thalya.laupa@gmail.com")
 __version__ = "1.0.0"
-__date__ = "2020"
+__date__ = "01/2021"
 
 from datetime import datetime
 from copy import deepcopy
@@ -510,9 +512,6 @@ def mvt_t(x, y, joueur, adversaire, index_piece, id_joueur,
     :return: list,list: permet d'obtenir le tableau de déplacement possible
     et le tableau de pièces qui peuvent etre mange.
 
-    >>> mvt_t(1, 1, [["T", (4, 3)]],0, [])
-    ([(0, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1), (0, 1), (2, 1), \
-(3, 1), (4, 1), (5, 1), (6, 1), (7, 1)], [])
     """
     mvt_tour_v, mange_tour_v = mvt_t_v(x, y, joueur, adversaire)
     mvt_tour_h, mange_tour_h = mvt_t_h(x, y, joueur, adversaire)
@@ -616,7 +615,7 @@ def mvt_f(x, y, joueur, adversaire, index_piece, id_joueur,
     le tableau de déplacement possible et le tableau de pièces qui peuvent
     etre mange.
 
-    >>> mvt_f(1, 1, [["F", (4, 3)]],0, [])
+    >>> mvt_f(1, 1, [["F", (4, 3)]], [["P", (5, 3)]], 0, 0, [], 'N')
     ([(0, 2), (2, 0), (0, 0), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7)],\
  [])
     """
@@ -650,6 +649,8 @@ def mvt_c(x, y, joueur, adversaire, index_piece, id_joueur,
     :param en_cours_echec:bool, indique si on est en echec
     :return: mvt_cavalier, mvt_cavalier_mange(list,list): tableau des
     mouvements possibles, tableau des pièces pouvant etre mange.
+
+    1, 1, [["C", (0, 3)]], [["P", (5, 3)]], 0, 0, [], 'N'
     """
     mvt_cavalier = []
     for i in range(1, 3):
@@ -667,6 +668,7 @@ def mvt_c(x, y, joueur, adversaire, index_piece, id_joueur,
     doublon = cherche_doublon(mvt_cavalier, mvt_cavalier_mange)
     if len(doublon) > 0:
         index_pop = 0
+        doublon.sort(reverse=True)
         for index in doublon:
             index = index - index_pop
             mvt_cavalier.pop(index)
@@ -785,10 +787,6 @@ def mvt_p(x, y, joueur, adversaire, index_piece, id_joueur,
     :param en_cours_echec:bool, indique si on est en echec
     :return: mvt_pion, mvt_pion_mange (list, list):tableau des mouvement
     possibles, tableau des pieces pouvant etre mange par le pion.
-
-    >>> mvt_p(1, 3, [['P', (1, 3)]], [['P', (6, 1)]], 1, [False, (7,2)])
-    ([(2, 3), (3, 3)], [])
-
     """
 
     mvt_pion = []
@@ -1192,7 +1190,6 @@ def analyse_piece(mvt_piece, joueur, adversaire, id_mvt):
         joueur = analyse_roque(joueur, mvt_piece, id_mvt)
     if is_mange:
         idx_efface = index_position(coo_x, coo_y, ret_adversaire)
-        print(f"efface {idx_efface} adv {ret_adversaire}")
         ret_adversaire.pop(idx_efface)
     return joueur, ret_adversaire
 
@@ -1270,16 +1267,16 @@ def translate(mouvements):
     :return:
 
     >>> translate("e4")
-    (3, 3, -1, -1, False, False, false, "")
+    (3, 3, -1, -1, False, False, False, '')
 
     >>> translate("exd5")
-    (4, 4, -1, -1, True, False, False, "")
+    (4, 4, -1, 3, True, False, False, '')
 
     >>> translate("ec3")
-    (2, 5, -1, 3, False, False, False, "")
+    (2, 5, -1, 3, False, False, False, '')
 
     >>> translate("fxe2")
-    (1, 3, -1, -1, True, False, False, "")
+    (1, 3, -1, 2, True, False, False, '')
     """
     pos_y = -1
     pos_x = -1
@@ -1488,8 +1485,8 @@ def delete_doublon(mvt_roi, doublon):
     :param doublon: list
     :return: list,   ensemble des mouvements du roi
     """
-    # print(f"{doublon} {mvt_roi}")
     if len(doublon) > 0:
+        doublon.sort(reverse=True)
         for index in doublon:
             mvt_roi.pop(index)
     return mvt_roi
@@ -1779,11 +1776,6 @@ def chess():
                         jouer = False
                     else:
                         print("Vous coordonnées ne sont pas exactes !")
-                print(f"case selectionnée {deplacement}")
-                # print(f"list mange {list_mvt_mange}")
-                # print(f"list deplacement {list_mvt_deplacement}")
-                # print(f"list joueur {joueur_qui_joue}")
-                # print(f"List adversaire {adversaire}")
             mvt_possible = creer_mvt(list_mvt_deplacement, "XX")
             mvt_mange = creer_mvt(list_mvt_mange, "OO")
             affiche_set(joueur1, joueur2, mvt_possible, mvt_mange)

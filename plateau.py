@@ -1,13 +1,16 @@
+# coding: utf-8
 """
 JEUX D'ECHEC .
 
 Code testé sur pyvala
-$ pylava echec.py
+$ pylava plateau.py
 $
 
-Code tester avec doctest
-$ python -m doctest echec.py
-$
+Code testé avec doctest
+$ python -m doctest plateau.py
+
+Lancé du jeu
+$ python plateau.py
 
 Usage:
 ======
@@ -32,14 +35,16 @@ Usage:
         > I_recul.png
         > I_avance.png
         > I_inverse.png
+        > I_stop.png
         > chess.png
 
 """
 
-__authors__ = "Clara Correia"
-__contact__ = "clara.correia.sne@gmail.com"
-__version__ = "2.0.0"
-__date__ = "10/01/2021"
+__authors__ = ("Clara CORREIA", "Laurie BEHLOUL", "Thalya LAUPA")
+__contact__ = ("clara.correia.sne@gmail.com", "lauriebehloul1@gmail.com",
+               "thalya.laupa@gmail.com")
+__version__ = "1.0.0"
+__date__ = "01/2021"
 
 from upemtk import rectangle
 from upemtk import mise_a_jour
@@ -81,8 +86,6 @@ from copy import deepcopy
 
 from math import sqrt
 
-from random import randint
-
 from time import sleep  # librairie pour ralentir le temps d'affichage
 
 
@@ -109,6 +112,8 @@ def distance(xa, ya, xb, yb):
             int
                 Le resultat du calcul.
 
+        >>> distance(0, 0, 10, 0)
+        10.0
             """
     return sqrt((xb - xa) ** 2 + (yb - ya) ** 2)
 
@@ -142,6 +147,9 @@ def inverse_id_joueur(id_joueur):
     Permet d'inverser l'id du joueur
     :param id_joueur: int
     :return: int
+
+    >>> inverse_id_joueur(0)
+    1
     """
     if id_joueur == 0:
         return 1
@@ -170,10 +178,10 @@ def affiche_ouverture(taille_ecran, picture):
 
 def affiche_accueil(ecran, rayon):
     """
-
+    Permet d'afficher l'ecran d'acceuil
     :param ecran: int
-    :param rayon:
-    :return:
+    :param rayon: int
+    :return: int
     """
     menu = True
     action_menu = 0
@@ -202,12 +210,12 @@ def affiche_accueil(ecran, rayon):
 
 def click_cercle_accueil(ecran, rayon, coo_x, coo_y):
     """
-
-    :param ecran:
-    :param rayon:
-    :param coo_x:
-    :param coo_y:
-    :return:
+    Permet de savoir quel cerlce a été cliqué
+    :param ecran: int
+    :param rayon: int
+    :param coo_x: int
+    :param coo_y: int
+    :return: int
     """
     decallage = ecran // 6
     init_x = ecran // 3
@@ -226,6 +234,12 @@ def click_cercle_accueil(ecran, rayon, coo_x, coo_y):
 
 
 def affiche_param(ecran, rayon):
+    """
+    Permet d'afficher les paramètres
+    :param ecran: int
+    :param rayon:  int
+    :return: int
+    """
     menu = True
     action_param = 0
     decallage = ecran // 8
@@ -256,13 +270,13 @@ def affiche_param(ecran, rayon):
 
 def click_cercle_param(ecran, rayon, coo_x, coo_y):
     """
-
-    :param ecran:
-    :param rayon:
-    :param coo_x:
-    :param coo_y:
-    :return:
-    """
+    Permet de savoir quel cerlce a été cliqué dans paramètres
+    :param ecran: int
+    :param rayon: int
+    :param coo_x: int
+    :param coo_y: int
+    :return: int
+        """
     decallage = ecran // 8
     init_x = ecran // 4
     init_y = ecran // 2
@@ -284,12 +298,12 @@ def click_cercle_param(ecran, rayon, coo_x, coo_y):
 
 def affiche_param_joueur(ecran, rayon, param):
     """
-        Permet d'afficher les option de parametres
+    Permet d'afficher les option de parametres
 
-        :param ecran: int
-        :param rayon: int
-        :param param: list
-        :return: tuple
+    :param ecran: int
+    :param rayon: int
+    :param param: list
+    :return: tuple
 
     """
     menu = True
@@ -365,17 +379,17 @@ def affiche_param_joueur(ecran, rayon, param):
 
 def click_cercle_param_joueur(ecran, rayon, coo_x, coo_y, param):
     """
-        Permet de vérifie que le clique de la souris est bien dans les options
+    Permet de vérifie que le clique de la souris est bien dans les options
 
-        :param ecran: int
-        :param rayon: int
-        :param coo_x: int
-        :param coo_y: int
-        :param param: list
-        :return: tuple
-            (list, booleens)
-                parametre mis a jour
-                booleeen qui retourne True si les parametres sont valide
+    :param ecran: int
+    :param rayon: int
+    :param coo_x: int
+    :param coo_y: int
+    :param param: list
+    :return: tuple
+        (list, booleens)
+            parametre mis a jour
+            booleeen qui retourne True si les parametres sont valide
            """
     # Test Validation
     if distance(coo_x, coo_y, ecran // 2, ecran - 100) < rayon:
@@ -405,6 +419,12 @@ def click_cercle_param_joueur(ecran, rayon, coo_x, coo_y, param):
 
 
 def click_param_joueur(coo_x, coo_y):
+    """
+    Permet de verifier les coo du cercle joueurs
+    :param coo_x: int
+    :param coo_y: int
+    :return: int
+    """
     if 180 < coo_x < 600 and 150 < coo_y < 200:
         return 1
     elif 180 < coo_x < 600 and 350 < coo_y < 400:
@@ -415,11 +435,11 @@ def click_param_joueur(coo_x, coo_y):
 
 def affiche_param_replay(ecran, rayon):
     """
-        Permet d'afficher les option de parametres
+    Permet d'afficher les option de parametres
 
-        :param ecran: int
-        :param rayon: int
-        :return: tuple
+    :param ecran: int
+    :param rayon: int
+    :return: tuple
 
     """
     menu = True
@@ -452,16 +472,16 @@ def affiche_param_replay(ecran, rayon):
 
 def click_cercle_param_replay(ecran, rayon, coo_x, coo_y):
     """
-        Permet de vérifie que le clique de la souris est bien dans les options
+    Permet de vérifie que le clique de la souris est bien dans les options
 
-        :param ecran: int
-        :param rayon: int
-        :param coo_x: int
-        :param coo_y: int
-        :return: tuple
-            (list, booleens)
-                parametre mis a jour
-                booleeen qui retourne True si les parametres sont valide
+    :param ecran: int
+    :param rayon: int
+    :param coo_x: int
+    :param coo_y: int
+    :return: tuple
+        (list, booleens)
+            parametre mis a jour
+            booleeen qui retourne True si les parametres sont valide
            """
     # Test Validation
     if distance(coo_x, coo_y, ecran // 2, ecran - 100) < rayon:
@@ -470,11 +490,11 @@ def click_cercle_param_replay(ecran, rayon, coo_x, coo_y):
 
 def affiche_param_init(ecran, rayon):
     """
-        Permet d'afficher les option de parametres
+    Permet d'afficher les option de parametres
 
-        :param ecran: int
-        :param rayon: int
-        :return: tuple
+    :param ecran: int
+    :param rayon: int
+    :return: tuple
 
     """
     menu = True
@@ -514,7 +534,7 @@ def affiche_param_init(ecran, rayon):
         texte(40, 375, 'deplacement fou', 'black', 'nw', 'Helvetica', 15)
         texte(40, 405, 'deplacement cheval', 'black', 'nw', 'Helvetica', 15)
         texte(40, 435, 'deplacement roi', 'black', 'nw', 'Helvetica', 15)
-        texte(40, 465, 'deplacement rene', 'black', 'nw', 'Helvetica', 15)
+        texte(40, 465, 'deplacement reine', 'black', 'nw', 'Helvetica', 15)
         texte(40, 495, 'deplacement pion', 'black', 'nw', 'Helvetica', 15)
         texte(40, 525, 'Jeux Mat en 2 coups', 'black', 'nw', 'Helvetica', 15)
         cercle(200, 230, 10)
@@ -542,17 +562,17 @@ def affiche_param_init(ecran, rayon):
 
 def click_cercle_param_init(ecran, rayon, coo_x, coo_y, option):
     """
-        Permet de vérifie que le clique de la souris est bien dans les options
+    Permet de vérifie que le clique de la souris est bien dans les options
 
-        :param ecran: int
-        :param rayon: int
-        :param coo_x: int
-        :param coo_y: int
-        :param option: int
-        :return: tuple
-            (list, booleens)
-                parametre mis a jour
-                booleeen qui retourne True si les parametres sont valide
+    :param ecran: int
+    :param rayon: int
+    :param coo_x: int
+    :param coo_y: int
+    :param option: int
+    :return: tuple
+        (list, booleens)
+            parametre mis a jour
+            booleeen qui retourne True si les parametres sont valide
            """
     # Test Validation
     if distance(coo_x, coo_y, ecran // 2, ecran - 100) < rayon:
@@ -564,6 +584,12 @@ def click_cercle_param_init(ecran, rayon, coo_x, coo_y, option):
 
 
 def click_param_init(coo_x, coo_y):
+    """
+    Permet de vérifier que le clic est bien dans l'initialisation
+    :param coo_x: int
+    :param coo_y: int
+    :return: int
+    """
     if 130 < coo_x < 670 and 150 < coo_y < 200:
         return 1
     else:
@@ -571,6 +597,11 @@ def click_param_init(coo_x, coo_y):
 
 
 def generique(hauteur_plateau):
+    """
+    Affiche le genrique de fin
+    :param hauteur_plateau: int
+    :return: none
+    """
     efface_tout()
     hauteur_generique = hauteur_plateau + 10
     while hauteur_generique > -200:
@@ -610,13 +641,13 @@ def pixel_vers_case(top_x, top_y, x, y, ratio):
 def case_vers_pixel(x, y, largeur, largeur_jeu, decallage_plateau, ratio):
     """
     Permet de transformer une coo de pixel en coo de plateau
-    :param x:
-    :param y:
-    :param largeur:
-    :param largeur_jeu:
-    :param decallage_plateau:
-    :param ratio:
-    :return:
+    :param x: iny
+    :param y: int
+    :param largeur: int
+    :param largeur_jeu: int
+    :param decallage_plateau: int
+    :param ratio: int
+    :return: tuple: int, int
 
     >>> case_vers_pixel(1, 2, 50, 40, 1, 10)
     (34, 20)
@@ -630,6 +661,14 @@ def case_vers_pixel(x, y, largeur, largeur_jeu, decallage_plateau, ratio):
 
 
 def get_piece(piece):
+    """
+    Permet de traduire les pieces
+    :param piece: str
+    :return: str
+
+    >>> get_piece('r')
+    'T'
+    """
     if piece == 'r' or piece == 'R':
         return "T"
     elif piece == 'n' or piece == 'N':
@@ -646,11 +685,11 @@ def get_piece(piece):
 
 def check_position_mouvement(pox_x, pos_y, list_mvt):
     """
-
-    :param pox_x:
-    :param pos_y:
-    :param list_mvt:
-    :return:
+    Permet de verifier la position du mouvement
+    :param pox_x: int
+    :param pos_y: int
+    :param list_mvt: liste
+    :return: booléens
 
     >>> check_position_mouvement(1,2, [(1,2), (0,3)])
     True
@@ -669,13 +708,13 @@ def dessine_jeu(largeur, largeur_jeu, decallage_plateau, nb_carre_ligne, name,
     """
     Permet de dessiner un plateau de jeu avec des carrees rouge ou blanc
     en fonction du plateau de jeu
-    :param largeur:
-    :param largeur_jeu:
-    :param decallage_plateau:
-    :param nb_carre_ligne:
-    :param name:
-    :param action_replay
-    :param action_apprentissage
+    :param largeur:int
+    :param largeur_jeu: int
+    :param decallage_plateau: int
+    :param nb_carre_ligne: int
+    :param name: str
+    :param action_replay : int
+    :param action_apprentissage: int
     :return: Affichage upemtk du plateau
 
     """
@@ -704,7 +743,7 @@ def dessine_jeu(largeur, largeur_jeu, decallage_plateau, nb_carre_ligne, name,
         image(top_x + (3 * largeur_jeu // 4), largeur - 50, "I_avance.png")
         image(top_x + (largeur_jeu // 4), largeur - 50, "I_recul.png")
     elif not action_apprentissage:
-        image(125, largeur - 50, "I_Inverse.png")
+        image(125, largeur - 50, "I_inverse.png")
     rectangle(top_x + (2 * largeur_jeu // 4) - 40, largeur - 75,
               top_x + (2 * largeur_jeu // 4) + 38, largeur - 27, epaisseur=4)
     image(50, largeur - 50, "I_stop.png")
@@ -716,16 +755,16 @@ def dessine_plateau(largeur, largeur_jeu, decallage_plateau, nb_carre_ligne,
     """
     Permet de dessiner un plateau de jeu avec des carrees rouge ou blanc
     en fonction du plateau de jeu
-    :param largeur:
-    :param largeur_jeu:
-    :param decallage_plateau:
-    :param nb_carre_ligne:
-    :param j1:
-    :param j2:
+    :param largeur: int
+    :param largeur_jeu: int
+    :param decallage_plateau: int
+    :param nb_carre_ligne: int
+    :param j1: liste
+    :param j2: liste
     :param sens_jeux: 1 joueur qui joue et son adversaie
-    :param nb_coups:
-    :param param:
-    :param id_joueur:
+    :param nb_coups: int
+    :param param: int
+    :param id_joueur: int
     :return: Affichage upemtk du plateau
 
     """
@@ -790,17 +829,17 @@ def dessine_plateau(largeur, largeur_jeu, decallage_plateau, nb_carre_ligne,
 def dessine_case(clear_mouvement, nb_carre_ligne, top_x, top_y, ratio, largeur,
                  largeur_jeu, list_mouvement, list_mange):
     """
-
-    :param clear_mouvement:
-    :param nb_carre_ligne:
-    :param top_x:
-    :param top_y:
-    :param ratio:
-    :param largeur:
-    :param largeur_jeu:
-    :param list_mouvement:
-    :param list_mange:
-    :return:
+    Permet de dessiner des case
+    :param clear_mouvement: str
+    :param nb_carre_ligne: int
+    :param top_x: int
+    :param top_y: int
+    :param ratio: int
+    :param largeur: int
+    :param largeur_jeu: int
+    :param list_mouvement: liste
+    :param list_mange:liste
+    :return: none
     """
     efface('case')
     remplissage_paire = "white"
@@ -825,6 +864,13 @@ def dessine_case(clear_mouvement, nb_carre_ligne, top_x, top_y, ratio, largeur,
 
 
 def dessine_piece(type_piece, x, y):
+    """
+    Permet d 'afficher les immages des piece
+    :param type_piece: str
+    :param x: int
+    :param y: int
+    :return: none
+    """
     image(x, y, type_piece + ".png", tag='piece')
     mise_a_jour()
 
@@ -833,13 +879,13 @@ def dessine_mvt(symbole, list_mvt, largeur, largeur_jeu, decallage_plateau,
                 nb_carre_ligne):
     """
     Permet d'afficher le mvt en txt a cote pour connaitre le mvt effectue
-    :param symbole:
-    :param list_mvt:
-    :param largeur:
-    :param largeur_jeu:
-    :param decallage_plateau:
-    :param nb_carre_ligne:
-    :return:
+    :param symbole: str
+    :param list_mvt: liste
+    :param largeur: int
+    :param largeur_jeu: int
+    :param decallage_plateau: int
+    :param nb_carre_ligne: int
+    :return:none
     """
     ratio = largeur_jeu // nb_carre_ligne
     for case_plateau in list_mvt:
@@ -853,9 +899,9 @@ def dessine_mvt(symbole, list_mvt, largeur, largeur_jeu, decallage_plateau,
 def dessine_piece_choisit(choix, couleur):
     """
     Permet d'upgrader le pion
-    :param choix:
-    :param couleur:
-    :return:
+    :param choix: int
+    :param couleur: str
+    :return:str
     """
     x = 30
     y = 30
@@ -873,6 +919,13 @@ def dessine_piece_choisit(choix, couleur):
 
 
 def check_decision(pos_x, pos_y, choix):
+    """
+    Permet de savoir quel decision a prit le joueur
+    :param pos_x:  int
+    :param pos_y: int
+    :param choix: int
+    :return: str
+    """
     print(choix)
     if 10 < pos_x < 50 and 10 < pos_y < 50:
         return True, choix[0]
@@ -889,6 +942,26 @@ def rafraichir_plateau(clear_mouvement, nb_case_echec, top_x, top_y, ratio,
                        taille_ecran, taille_jeu, sens_jeux, joueur_qui_joue,
                        adversaire,  list_mvt_deplacement, list_mvt_mange,
                        decallage_plateau, param, nb_coup_joue, id_joueur):
+    """
+    Permet de rafraichir le plateau après une action
+    :param clear_mouvement: int
+    :param nb_case_echec: int
+    :param top_x: int
+    :param top_y: int
+    :param ratio: int
+    :param taille_ecran:int
+    :param taille_jeu: int
+    :param sens_jeux: int
+    :param joueur_qui_joue:liste
+    :param adversaire: liste
+    :param list_mvt_deplacement:liste
+    :param list_mvt_mange: liste
+    :param decallage_plateau: int
+    :param param: int
+    :param nb_coup_joue:str
+    :param id_joueur: int
+    :return: none
+    """
     dessine_case(clear_mouvement, nb_case_echec, top_x, top_y, ratio,
                  taille_ecran, taille_jeu, list_mvt_deplacement,
                  list_mvt_mange)
@@ -900,6 +973,19 @@ def rafraichir_plateau(clear_mouvement, nb_case_echec, top_x, top_y, ratio,
 def rafraichir_case(clear_mouvement, nb_case_echec, top_x, top_y, ratio,
                     taille_ecran, taille_jeu, list_mvt_deplacement,
                     list_mvt_mange):
+    """
+   Permet de rafraichir les cases après une action
+    :param clear_mouvement: int
+    :param nb_case_echec: int
+    :param top_x: int
+    :param top_y: int
+    :param ratio: int
+    :param taille_ecran:int
+    :param taille_jeu: int
+    :param list_mvt_deplacement:liste
+    :param list_mvt_mange: liste
+    :return: none
+    """
     dessine_case(clear_mouvement, nb_case_echec, top_x, top_y, ratio,
                  taille_ecran, taille_jeu, list_mvt_deplacement,
                  list_mvt_mange)
@@ -908,10 +994,10 @@ def rafraichir_case(clear_mouvement, nb_case_echec, top_x, top_y, ratio,
 def dessine_coup_joueur(nb_case_echec, ratio, mouv):
     """
     Permet de rafraichir seulement le coup du joueur
-    :param nb_case_echec:
-    :param ratio:
-    :param mouv:
-    :return:
+    :param nb_case_echec: int
+    :param ratio: int
+    :param mouv: str
+    :return:none
     """
     efface('mouv')
     texte(20, ratio * (nb_case_echec + 1) // 2 + 80, mouv, taille=24,
@@ -922,10 +1008,10 @@ def dessine_coup_joueur(nb_case_echec, ratio, mouv):
 def dessine_tour_joueur(nb_case_echec, ratio, joueur):
     """
     Permet de rafraichir le nombre de tour du jeu
-    :param nb_case_echec:
-    :param ratio:
-    :param joueur:
-    :return:
+    :param nb_case_echec: int
+    :param ratio: int
+    :param joueur: int
+    :return:none
     """
     efface("tour")
     texte(20, ratio * (nb_case_echec + 1) // 2 + 50, joueur,
@@ -939,9 +1025,13 @@ def dessine_tour_joueur(nb_case_echec, ratio, joueur):
 def position_initiale(definition, param):
     """
     Permet de creer un jeu
-    :param definition:
-    :param param:
-    :return:
+    :param definition: str
+    :param param: str
+    :return: liste
+
+    >>> position_initiale('kq/8/KQ',  ["j1", "B", "B", "J2"])
+    ([['R', (2, 0)], ['D', (2, 1)]], [['R', (0, 0)], ['D', (0, 1)]])
+
     """
     joueur_noir = []
     joueur_blanc = []
@@ -968,12 +1058,15 @@ def position_initiale(definition, param):
 
 
 def init_plateau():
+    """
+    return: list ensemble des positions en fonction du jeu choisi
+    """
     normal = ("Standard", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w "
                           "KQkq - 0 1")
-    prise_en_passant = ("Le Pion", "8/ppppppp/8/8/8/8/PPPPPPPP/8 w "
+    prise_en_passant = ("Le Pion", "8/1pppppp1/8/8/8/8/1PPPPPP1/8 w "
                                    "KQkq - 0 1")
     rocque = ("Rocque", "r2k3r/8/8/8/8/8/8/R2K3R w KQkq - 0 1")
-    pion_upgrade = ("Pion Upgrade", "8/P/8/43/8/8/p/8 w KQkq - 0 1")
+    pion_upgrade = ("Pion Upgrade", "8/8/P/8/8/p/8/8 w KQkq - 0 1")
     deplacment_tour = ("Tour", "8/8/8/3rR3/8/8/8/8 w KQkq - 0 1")
     deplacement_fou = ("Fou", "8/8/8/3bB3/8/8/8/8 w KQkq - 0 1")
     deplacement_cheval = ("Cheval", "8/8/8/3nN3/8/8/8/8 w KQkq - 0 1")
@@ -981,9 +1074,7 @@ def init_plateau():
     deplacement_dame = ("La Dame", "8/8/8/3qQ3/8/8/8/8 w KQkq - 0 1")
     deplacement_pion = ("Le Pion", "8/PPp2ppp/3p4/4p3/8/3P4/PPPpPPpp/8 w "
                                    "KQkq - 0 1")
-    mat_2_coups = [("Tigran Gharamian", "8/8/8/8/1B6/NN6/pk1K4/8 w - 0 ""0"), (
-        "Anthony Wirig", "8/1p1P1p2/8/2pPp3/2PkP3/3P4/3K4/8 w - 0 0"),
-                   ("Quotidien", "8/6Bp/8/6kp/4k1b1/4P1Q1/7K/8 w - 0 0")]
+    mat_2_coups = [("Quotidien", "8/4K1kp/6NN/6B1/8/8/8/8 w - 0 0")]
     return [normal, prise_en_passant, rocque, pion_upgrade, deplacment_tour,
             deplacement_fou, deplacement_cheval, deplacement_roi,
             deplacement_dame, deplacement_pion, mat_2_coups]
@@ -991,15 +1082,16 @@ def init_plateau():
 
 def set_joueur(option, init, gameplay, plateau, param):
     """
-    :param option:
-    :param init:
-    :param gameplay:
-    :param plateau:
-    :param param:
+    Permet de créer des set d ejoueurs
+    :param option: str
+    :param init: int
+    :param gameplay: liste
+    :param plateau: liste
+    :param param: liste
     :return: tuple
 
     >>> set_joueur(1, "", 0, [("Le Roi", "8/8/8/4K3/8/8/8/8 w KQkq - 0 1")], \
-    ["j1", "B", "B", "J2"], "")
+    ["j1", "B", "B", "J2"])
     ([['R', (3, 4)]], [], 'Le Roi')
     """
 
@@ -1021,7 +1113,7 @@ def set_joueur(option, init, gameplay, plateau, param):
             # Cas particulier du mat en 2 coups on choisi
             # aléatoirement un jeu
             if gameplay == 10:
-                num_jeu = randint(0, 2)
+                num_jeu = 0
                 jb, jn = position_initiale(plateau[gameplay][num_jeu][1],
                                            param)
                 gameplay_name = plateau[gameplay][num_jeu][0]
@@ -1040,6 +1132,16 @@ def set_joueur(option, init, gameplay, plateau, param):
 #  Fonctions Gestion des joueurs          #
 ###########################################
 def inverse_plateau(j1, j2):
+    """
+    permet de changer le sens du plateau
+    :param j1: liste
+    :param j2: liste
+    :return: tuple de liste
+
+    >>> inverse_plateau([['R', (2, 0)], ['D', (2, 1)]], [['R', (0, 0)], \
+    ['D', (0, 1)]])
+    ([['R', (5, 7)], ['D', (5, 6)]], [['R', (7, 7)], ['D', (7, 6)]])
+    """
     inv_j1 = []
     inv_j2 = []
     for j in j1:
@@ -1051,10 +1153,13 @@ def inverse_plateau(j1, j2):
 
 def score(j1, j2):
     """
+    Permet de stocker les score des pieces
+    :param j1: liste
+    :param j2: liste
+    :return: int, int
 
-    :param j1:
-    :param j2:
-    :return:
+    >>> score([['P', (2, 0)], ['D', (2, 1)]], [['T', (0, 0)], ['C', (0, 1)]])
+    (10, 9)
     """
     score_j1 = 0
     score_j2 = 0
@@ -1070,9 +1175,12 @@ def score(j1, j2):
 ###########################################
 def score_piece(piece):
     """
-
+    Donne un score aux pieces
     :param piece: str
     :return: int
+
+    >>> score_piece("F")
+    3
     """
     score_pion = 1
     score_tour = 6
@@ -1097,10 +1205,26 @@ def score_piece(piece):
 #  Fonctions Inversion des mouvements       #
 ###########################################
 def inverse_mouvement(mouvements):
+    """
+    permet d'inverser  les mouvement
+    :param mouvements: liste
+    :return: tuple
+
+    >>> inverse_mouvement([0,1])
+    (7, 6)
+    """
     return abs(mouvements[0] - 7), abs(mouvements[1] - 7)
 
 
 def inverse_list_mouvement(list_mouvements):
+    """
+    Permet d'inverser les liste de mouvement
+    :param list_mouvements: liste
+    :return: liste
+
+    >>> inverse_list_mouvement([(0,7), (4,3)])
+    [(7, 0), (3, 4)]
+    """
     inv_mouvement = []
     for mvt in list_mouvements:
         inv_mouvement.append(inverse_mouvement(mvt))
@@ -1108,8 +1232,14 @@ def inverse_list_mouvement(list_mouvements):
 
 
 def inverse_groupement_mouvement(replay_jeu_complet):
+    """
+    Permet d'inverser les mouvement du replay
+    :param replay_jeu_complet: liste
+    :return: liste
+    """
     inv_replay_list = []
     inv_replay_piece = []
+    print(replay_jeu_complet)
     for list_mvt in replay_jeu_complet:
         for piece in list_mvt:
             inv_replay_piece.append((piece[0], inverse_mouvement(piece[1])))
@@ -1118,8 +1248,16 @@ def inverse_groupement_mouvement(replay_jeu_complet):
 
 
 def is_mouvement_ambigu(pos_x, pos_y, mouvement_piece, mange_mouvement_piece):
+    """
+    Permet de savoir faire la diff entre 2 piece ambigue
+    :param pos_x: int
+    :param pos_y: int
+    :param mouvement_piece: liste
+    :param mange_mouvement_piece: liste
+    :return: booléens
+    """
     if is_double_place(mouvement_piece, pos_x, pos_y) or \
-           is_double_place(mange_mouvement_piece, pos_x, pos_y):
+            is_double_place(mange_mouvement_piece, pos_x, pos_y):
         return True
     else:
         return False
@@ -1138,6 +1276,16 @@ def inverse_tour_bouge():
 #  Fonctions Action sur Plateau           #
 ###########################################
 def check_sortir(pos_x, pos_y):
+    """
+    Permet de savoir si l'on sort du plateau
+    :param pos_x:  int
+    :param pos_y:  int
+    :return: booléens
+
+
+    >>> check_sortir(50, 650)
+    True
+    """
     if 25 < pos_x < 75 and 625 < pos_y < 675:
         return True
     return False
@@ -1148,6 +1296,29 @@ def check_inverse(pos_x, pos_y, nb_case_echec, top_x, top_y,
                   list_mvt_mange, joueur_qui_joue, adversaire,
                   replay_jeu_complet, decallage_plateau, id_mvt, sens_jeux,
                   nb_coup_joue, id_joueur):
+    """
+    Même principe lorsqe on inverse le jeu
+    :param pos_x: int
+    :param pos_y: int
+    :param nb_case_echec: int
+    :param top_x: int
+    :param top_y: int
+    :param ratio: int
+    :param taille_ecran:int
+    :param taille_jeu: int
+    :param param: liste
+    :param list_mvt: liste
+    :param list_mvt_mange:liste
+    :param joueur_qui_joue: liste
+    :param adversaire: liste
+    :param replay_jeu_complet: str
+    :param decallage_plateau: str
+    :param id_mvt: int
+    :param sens_jeux: str
+    :param nb_coup_joue: int
+    :param id_joueur: int
+    :return: tuple
+    """
     if 100 < pos_x < 150 and 625 < pos_y < 675:
         joueur_qui_joue, adversaire = inverse_plateau(joueur_qui_joue,
                                                       adversaire)
@@ -1173,6 +1344,28 @@ def check_avance(pos_x, pos_y, idx_partie, nb_case_echec, top_x, top_y, ratio,
                  list_mvt_mange, joueur_qui_joue, replay_jeu_complet,
                  decallage_plateau, sens_jeux, param, nb_coup_joue, id_joueur,
                  ):
+    """
+    Permet de vérifier si l'on avance
+    :param pos_x: int
+    :param pos_y: int
+    :param idx_partie:int
+    :param nb_case_echec: int
+    :param top_x: int
+    :param top_y: int
+    :param ratio: int
+    :param taille_ecran:int
+    :param taille_jeu: int
+    :param list_mvt_deplacement:liste
+    :param list_mvt_mange: liste
+    :param joueur_qui_joue: liste
+    :param replay_jeu_complet: liste
+    :param decallage_plateau: str
+    :param sens_jeux: str
+    :param param: liste
+    :param nb_coup_joue: int
+    :param id_joueur: int
+    :return: liste
+    """
     joueur = joueur_qui_joue
     if 515 < pos_x < 565 and 625 < pos_y < 675:
         nb_coup_partie = len(replay_jeu_complet)
@@ -1197,6 +1390,29 @@ def check_recul(pos_x, pos_y, idx_partie, nb_case_echec, top_x, top_y, ratio,
                 list_mvt_mange, joueur_qui_joue, adversaire,
                 replay_jeu_complet, decallage_plateau, sens_jeux, param,
                 nb_coup_joue, id_joueur):
+    """
+    Permet de voir si on recule
+    :param pos_x: int
+    :param pos_y: int
+    :param idx_partie:int
+    :param nb_case_echec: int
+    :param top_x: int
+    :param top_y: int
+    :param ratio: int
+    :param taille_ecran:int
+    :param taille_jeu: int
+    :param list_mvt_deplacement:liste
+    :param list_mvt_mange: liste
+    :param joueur_qui_joue: liste
+    :param adversaire: liste
+    :param replay_jeu_complet: liste
+    :param decallage_plateau: str
+    :param sens_jeux: str
+    :param param: liste
+    :param nb_coup_joue: int
+    :param id_joueur: int
+    :return: liste
+    """
     joueur = joueur_qui_joue
     if 265 < pos_x < 315 and 625 < pos_y < 675:
         idx_partie -= 2
@@ -1223,6 +1439,32 @@ def nouveau_tour(change_joueur, id_joueur, param, joueur_qui_joue, adversaire,
                  taille_ecran, taille_jeu, sens_jeux, list_mvt_deplacement,
                  list_mvt_mange, decallage_plateau, prise_passant,
                  is_prise_passant, coupj, coupj1, coupj2):
+    """
+    Permet de lister un nouv0 joueur
+    :param change_joueur: int
+    :param id_joueur: int
+    :param param: liste
+    :param joueur_qui_joue:liste
+    :param adversaire: liste
+    :param id_mvt: int
+    :param nb_coup_joue:int
+    :param nb_case_echec: int
+    :param top_x: int
+    :param top_y: int
+    :param ratio: str
+    :param taille_ecran:int
+    :param taille_jeu: int
+    :param sens_jeux: int
+    :param list_mvt_deplacement:lste
+    :param list_mvt_mange: liste
+    :param decallage_plateau: int
+    :param prise_passant: int
+    :param is_prise_passant: booléen
+    :param coupj: int
+    :param coupj1: int
+    :param coupj2: int
+    :return: tuple
+    """
     new_joueur_qui_joue = deepcopy(joueur_qui_joue)
     new_adversaire = deepcopy(adversaire)
     rafraichir_plateau(True, nb_case_echec, top_x, top_y, ratio,
@@ -1233,9 +1475,7 @@ def nouveau_tour(change_joueur, id_joueur, param, joueur_qui_joue, adversaire,
     dessine_coup_joueur(nb_case_echec, ratio, coupj)
     if change_joueur:
         # sauvegarde le mvt fait
-        print(f"coup 2 {coupj2}")
         if len(coupj2) > 0:
-            print(f"sauvegarde -{coupj2}- -{coupj}-")
             sauvegarde(nb_coup_joue // 2, coupj2, coupj)
             coupj2 = ""
             coupj1 = coupj
@@ -1285,31 +1525,31 @@ def check_piece_jeu(pos_x, pos_y, piece, index_pos, nb_case_echec, top_x,
                     nb_coup_joue, old_x, old_y):
     """
     Permet de recuperer l'ensemble des mvt du joueur
-    :param pos_x:
-    :param pos_y:
-    :param piece:
-    :param index_pos:
-    :param nb_case_echec:
-    :param top_x:
-    :param top_y:
-    :param ratio:
-    :param taille_ecran:
-    :param taille_jeu:
-    :param list_mvt_deplacement:
-    :param list_mvt_mange:
-    :param id_joueur:
-    :param id_mvt:
-    :param prise_passant:
-    :param joueur_qui_joue:
-    :param adversaire:
-    :param decallage_plateau:
-    :param change_joueur:
-    :param sens_jeux:
-    :param param:
-    :param nb_coup_joue:
-    :param old_x:
-    :param old_y:
-    :return:
+    :param pos_x: int
+    :param pos_y:int
+    :param piece:int
+    :param index_pos:liste
+    :param nb_case_echec:int
+    :param top_x:int
+    :param top_y:int
+    :param ratio:str
+    :param taille_ecran:int
+    :param taille_jeu:int
+    :param list_mvt_deplacement:liste
+    :param list_mvt_mange:liste
+    :param id_joueur:int
+    :param id_mvt:int
+    :param prise_passant:int
+    :param joueur_qui_joue:liste
+    :param adversaire:liste
+    :param decallage_plateau:str
+    :param change_joueur:int
+    :param sens_jeux:str
+    :param param:liste
+    :param nb_coup_joue:int
+    :param old_x:int
+    :param old_y:int
+    :return:tuple
     """
     if check_position_piece(pos_x, pos_y, joueur_qui_joue):
         piece, index_pos = name_piece(pos_x, pos_y, joueur_qui_joue)
@@ -1338,6 +1578,28 @@ def check_mouvement_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
                         list_mvt_mange, id_joueur, id_mvt, prise_passant,
                         joueur_qui_joue, adversaire,
                         change_joueur, sens_jeux, param, coupj):
+    """
+
+    Peremt de stocker les mouvements
+    :param pos_x: int
+    :param pos_y: int
+    :param piece: int
+    :param old_x: int
+    :param old_y: int
+    :param index_pos:int
+    :param list_mvt_deplacement:liste
+    :param list_mvt_mange: liste
+    :param id_joueur: int
+    :param id_mvt: int
+    :param prise_passant:booléen
+    :param joueur_qui_joue: liste
+    :param adversaire: liste
+    :param change_joueur: booleens
+    :param sens_jeux: int
+    :param param: liste
+    :param coupj:int
+    :return: tuple
+    """
     decision = ""
     ambiguite = False
     if check_position_mouvement(pos_x, pos_y, list_mvt_deplacement):
@@ -1376,17 +1638,13 @@ def check_mouvement_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
             else:
                 roi_bouge[1] = True
             # Il s'agit d'un petit Roque
-            print(f"{old_y} Pos {pos_y}")
-            print(f"{abs(old_y - pos_y) > 1} {pos_y > old_y}")
             if abs(old_y - pos_y) > 1 and pos_y > old_y:
                 print("PR")
                 _, index_pos = name_piece(old_x, 7, joueur_qui_joue)
-                print(f"PR {name_piece(old_x, 0, joueur_qui_joue)}")
                 joueur_qui_joue[index_pos][1] = (old_x, old_y + 1)
             # Il s'agit d'un grand rocque
             if abs(old_y - pos_y > 1) and pos_y < old_y:
                 _, index_pos = name_piece(old_x, 0, joueur_qui_joue)
-                print(f"{name_piece(old_x, 0, joueur_qui_joue)}")
                 joueur_qui_joue[index_pos][1] = (old_x, old_y - 1)
         coupj = sauv_deplacement(piece, old_y, pos_x, pos_y, "",
                                  ambiguite, decision)
@@ -1398,7 +1656,15 @@ def check_mouvement_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
 
 
 def bouge_tour_roque(piece, old_x, old_y, param, sens_jeux):
-    print(f"{param} {sens_jeux} {old_x} {old_y}")
+    """
+    Peremt de verifier si la tour a bouger pour le roque
+    :param piece: str
+    :param old_x: int
+    :param old_y: int
+    :param param: liste
+    :param sens_jeux: int
+    :return: booléen
+    """
     if piece == "T":
         if (param[1] == "B" and param[2] == -1) or \
                 (param[1] == "N" and param[2] == 1):
@@ -1434,6 +1700,27 @@ def check_mouvement_mange_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
                               list_mvt_mange, id_joueur, id_mvt, prise_passant,
                               joueur_qui_joue, adversaire,
                               change_joueur, sens_jeux, param, coupj):
+    """
+    Permet de verifier la perte de piece mange
+    :param pos_x: int
+    :param pos_y: int
+    :param piece: int
+    :param old_x: int
+    :param old_y: int
+    :param index_pos:int
+    :param list_mvt_deplacement:liste
+    :param list_mvt_mange: liste
+    :param id_joueur: int
+    :param id_mvt: int
+    :param prise_passant:liste
+    :param joueur_qui_joue: liste
+    :param adversaire: liste
+    :param change_joueur: int
+    :param sens_jeux: int
+    :param param: liste
+    :param coupj: int
+    :return: tuple
+    """
     decision = ""
     ambiguite = False
     if check_position_mouvement(pos_x, pos_y, list_mvt_mange):
@@ -1475,7 +1762,7 @@ def check_mouvement_mange_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
             # tout en mangeant
             if (pos_x == 0 or pos_x == 7) and piece == "P":
                 choix = chgmt_pion(joueur_qui_joue)
-                decision = piece_choisit(choix)
+                decision = dessine_piece_choisit(choix, 'B')
                 joueur_qui_joue = transforme_pion(joueur_qui_joue,
                                                   index_pos,
                                                   decision)
@@ -1494,6 +1781,15 @@ def check_mouvement_mange_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
 
 
 def check_echec(id_joueur, id_mvt, prise_passant, joueur_qui_joue, adversaire):
+    """
+    Permet de verifier si il y a echec
+    :param id_joueur: v
+    :param id_mvt: int
+    :param prise_passant:liste
+    :param joueur_qui_joue: liste
+    :param adversaire: liste
+    :return: booléen
+    """
     trouve_roi, index_roi = cherche_roi(joueur_qui_joue)
     if trouve_roi:
         is_echec = echec(joueur_qui_joue[index_roi][1][0], joueur_qui_joue[
@@ -1505,6 +1801,15 @@ def check_echec(id_joueur, id_mvt, prise_passant, joueur_qui_joue, adversaire):
 
 
 def check_mat(joueur_qui_joue, adversaire, id_joueur, id_mvt, prise_passant):
+    """
+    Permet de verifier si il y a mat
+    :param joueur_qui_joue: liste
+    :param adversaire: liste
+    :param id_joueur: int
+    :param id_mvt: int
+    :param prise_passant:liste
+    :return: booléens
+    """
     trouve_roi, index_roi = cherche_roi(joueur_qui_joue)
     if trouve_roi:
         if mat(joueur_qui_joue, adversaire, id_joueur, id_mvt, prise_passant):
@@ -1515,6 +1820,19 @@ def check_mat(joueur_qui_joue, adversaire, id_joueur, id_mvt, prise_passant):
 
 def joue(param, jb, jn, nb_case_echec, taille_ecran, taille_jeu,
          decallage_plateau, replay_jeu_complet, sens_jeux):
+    """
+    Permet de jouer
+    :param param: int
+    :param jb: liste
+    :param jn: liste
+    :param nb_case_echec:int
+    :param taille_ecran: int
+    :param taille_jeu: int
+    :param decallage_plateau:int
+    :param replay_jeu_complet: int
+    :param sens_jeux: int
+    :return: none
+    """
     # initialisation des variables
     ratio = taille_jeu // nb_case_echec
     top_x = taille_ecran - decallage_plateau - taille_jeu
@@ -1682,6 +2000,25 @@ def check_action_replay(pos_x, pos_y, ratio, taille_ecran, taille_jeu,
                         replay_jeu_complet, decallage_plateau, nb_coup_joue,
                         nb_case_echec, top_x, top_y, sens_jeux, param,
                         id_joueur, partie_coord):
+    """
+    Replay
+    :param pos_x: int
+    :param pos_y: int
+    :param ratio: int
+    :param taille_ecran:int
+    :param taille_jeu: int
+    :param replay_jeu_complet:int
+    :param decallage_plateau: int
+    :param nb_coup_joue: int
+    :param nb_case_echec: int
+    :param top_x: int
+    :param top_y: int
+    :param sens_jeux:int
+    :param param: int
+    :param id_joueur:int
+    :param partie_coord:int
+    :return: tuple
+    """
     nb_coup_partie = len(replay_jeu_complet)
     joueur = []
     adversaire = []
@@ -1728,6 +2065,18 @@ def check_action_replay(pos_x, pos_y, ratio, taille_ecran, taille_jeu,
 def joue_replay(nb_case_echec,  taille_ecran,
                 taille_jeu, decallage_plateau, replay_jeu_complet,
                 param, sens_jeux, partie_coord):
+    """
+    Permet de jouer le replay
+    :param nb_case_echec: int
+    :param taille_ecran: int
+    :param taille_jeu: int
+    :param decallage_plateau:int
+    :param replay_jeu_complet: int
+    :param param: int
+    :param sens_jeux:int
+    :param partie_coord:int
+    :return: booléen
+    """
     ratio = taille_jeu // nb_case_echec
     top_x = taille_ecran - decallage_plateau - taille_jeu
     top_y = (taille_ecran - taille_jeu) // 2

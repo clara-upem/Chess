@@ -4,8 +4,13 @@ Date "2021.01.13" ]
 [Round "1" ]
 [White "Joueur1" ]
 [Black "Joueur2" ]
-[Time_begin "09:36:43"]
+[Time_begin "23:57:52"]
+[Time_end "23:58:52"]
+[Result "1-1"]
 [WhiteType: "Human ]"
 [BlackType: "Human ]"
 
-0. d4 e5 1. dxe5 d5 2. Qxd5 Ke7 
+0. g4 f5 1. gxf5 g6 2. f6 g5 3. f7 g4 4. f8=D g3 5. Qxe7 g2 
+6. Qxd7 g1=D 7. Qxc7 Qxf2 8. Qxb7 Qxe2 9. Qc7 Qxd2 10. Qd6 Qxc2 
+11. Qc5 Qxb2 12. Qc4 Qb4 
+1-1
