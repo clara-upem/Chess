@@ -1,14 +1,11 @@
 [Event "Projet Chess"] 
 [Site "MLV" ] 
-Date "2021.01.07" ]
+Date "2021.01.13" ]
 [Round "1" ]
 [White "Joueur1" ]
-[Black "Joueur2"]
-[Time_begin "03:44:11"]
-[Time_end "03:44:26"]
-[Result "1-0"]
-[WhiteType: "Human]"
-[BlackType: "Human]"
+[Black "Joueur2" ]
+[Time_begin "09:36:43"]
+[WhiteType: "Human ]"
+[BlackType: "Human ]"
 
-0.  e4 1. e5 f4
-1-0
+0. d4 e5 1. dxe5 d5 2. Qxd5 Ke7 

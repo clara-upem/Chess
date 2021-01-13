@@ -1101,6 +1101,7 @@ def empeche_echec(mvt, index_piece, joueur_qui_joue,
 ###########################################
 def replay(jeu_str):
     fichier = open(jeu_str, "r")
+    # on affecte le contenu du fichoer a la variables
     readlines = fichier.readlines()
     fichier.close()
     j1, j2, mvt_possible = creer_set(1)
@@ -1108,6 +1109,7 @@ def replay(jeu_str):
     chaine_coord = ""
     nom_blanc = "Blanc"
     nom_noir = "Noir"
+    # on selectionne les lignes qui nous interresse
     for j in readlines:
         if index == 4:
             nom_blanc = j.split()
@@ -1122,15 +1124,20 @@ def replay(jeu_str):
     partie_joue = []
     partie_coord = []
     for e in coord:
+        # on cherche les '.' pour savoir si ces un mvt du j1 ou du j2
         find_dot = e.find('.')
+        # joueur pair, fonction find return -1
         if index % 2 == 0 and find_dot < 1:
+            print(f"J1 {e}")
             index += 1
             id_mvt = -1
             j1, j2 = analyse_piece(e, j1, j2, id_mvt)
+            # permet d'isoler le pointeur representant le joueur
             partie_joue.append(deepcopy(j1))
             partie_joue.append(deepcopy(j2))
             partie_coord.append(e)
         elif find_dot < 1:
+            print(f"J2 {e}")
             index += 1
             id_mvt = 1
             j2, j1 = analyse_piece(e, j2, j1, id_mvt)
@@ -1150,15 +1157,19 @@ def replay(jeu_str):
 
 def analyse_piece(mvt_piece, joueur, adversaire, id_mvt):
     prise_passant = 'False', [['P', (0, 0)]]
+    # fonction issu de la librairie python qui creee une nouvelle entrée
     ret_adversaire = deepcopy(adversaire)
     is_mange = False
     coo_x = -1
     coo_y = -1
+    print(f"mvt Piece {mvt_piece}")
+    # fonction qui permet de verifier si le caractere est en miniscule car pion
     if mvt_piece[0].islower():
         joueur, is_mange, coo_x, coo_y = analyse_pion(mvt_piece, joueur,
                                                       id_mvt)
     elif mvt_piece[0] == 'Q':
         joueur, is_mange, coo_x, coo_y = analyse_dame(mvt_piece, joueur)
+        print(f"coo piece finale {coo_x}, {coo_y} {is_mange} {joueur}")
     elif mvt_piece[0] == 'N':
         joueur, is_mange, coo_x, coo_y = \
             analyse_cavalier(mvt_piece, joueur, adversaire, prise_passant)
@@ -1181,6 +1192,7 @@ def analyse_piece(mvt_piece, joueur, adversaire, id_mvt):
         joueur = analyse_roque(joueur, mvt_piece, id_mvt)
     if is_mange:
         idx_efface = index_position(coo_x, coo_y, ret_adversaire)
+        print(f"efface {idx_efface} adv {ret_adversaire}")
         ret_adversaire.pop(idx_efface)
     return joueur, ret_adversaire
 
@@ -1253,6 +1265,7 @@ def get_position(lettre_plateau):
 
 def translate(mouvements):
     """
+    Traduction de la partie
     :param mouvements:
     :return:
 
@@ -1306,6 +1319,12 @@ def translate(mouvements):
 
 
 def controle_ambiguite(val_ambigu, val):
+    """
+    Permet la valeur ambigu
+    :param val_ambigu: int
+    :param val: int
+    :return: int
+    """
     if val_ambigu >= 0:
         return val_ambigu
     else:
@@ -1357,10 +1376,13 @@ def analyse_pion(mouvement, joueur, id_mvt):
 
 def analyse_dame(mouvement, joueur):
     _, index_piece = cherche_piece("D", joueur)
+    print(f"Mouvement Dame {mouvement[1:]}")
     coo_x, coo_y, _, _, is_mange, is_echec, is_mat, _ = translate(mouvement[
                                                                   1:])
+    print(f"IDX : cherche pion {coo_x} {coo_y} {index_piece}")
     idx = index_piece[0]
     joueur[idx][1] = (coo_x, coo_y)
+    print(joueur)
     return joueur, is_mange, coo_x, coo_y
 
 
