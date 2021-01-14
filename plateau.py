@@ -610,7 +610,7 @@ def generique(hauteur_plateau):
         texte(150, hauteur_generique + 60, 'THALYA LAUPA')
         texte(150, hauteur_generique + 90, 'CPES 1')
         texte(150, hauteur_generique + 120, 'Jean Moulin')
-        texte(150, hauteur_generique + 140, 'UPEM MLV 1° annee')
+        texte(150, hauteur_generique + 150, 'UPEM MLV 1° annee')
         hauteur_generique -= 20
         mise_a_jour()
         sleep(0.2)
