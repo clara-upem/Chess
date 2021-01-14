@@ -926,7 +926,6 @@ def check_decision(pos_x, pos_y, choix):
     :param choix: int
     :return: str
     """
-    print(choix)
     if 10 < pos_x < 50 and 10 < pos_y < 50:
         return True, choix[0]
     elif 60 < pos_x < 100 and 10 < pos_y < 50 and len(choix) > 1:
@@ -1016,6 +1015,19 @@ def dessine_tour_joueur(nb_case_echec, ratio, joueur):
     efface("tour")
     texte(20, ratio * (nb_case_echec + 1) // 2 + 50, joueur,
           taille=24, tag="tour")
+    mise_a_jour()
+
+def dessine_echec_joueur(nb_case_echec, ratio, echec):
+    """
+    Permet de rafraichir seulement le coup du joueur
+    :param nb_case_echec: int
+    :param ratio: int
+    :param mouv: str
+    :return:none
+    """
+    efface('echec')
+    texte(20, ratio * (nb_case_echec + 1) // 2 + 110, echec, taille=24,
+          tag="echec", couleur="red")
     mise_a_jour()
 
 
@@ -1239,7 +1251,6 @@ def inverse_groupement_mouvement(replay_jeu_complet):
     """
     inv_replay_list = []
     inv_replay_piece = []
-    print(replay_jeu_complet)
     for list_mvt in replay_jeu_complet:
         for piece in list_mvt:
             inv_replay_piece.append((piece[0], inverse_mouvement(piece[1])))
@@ -1639,7 +1650,6 @@ def check_mouvement_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
                 roi_bouge[1] = True
             # Il s'agit d'un petit Roque
             if abs(old_y - pos_y) > 1 and pos_y > old_y:
-                print("PR")
                 _, index_pos = name_piece(old_x, 7, joueur_qui_joue)
                 joueur_qui_joue[index_pos][1] = (old_x, old_y + 1)
             # Il s'agit d'un grand rocque
@@ -1880,6 +1890,7 @@ def joue(param, jb, jn, nb_case_echec, taille_ecran, taille_jeu,
                prise_passant):
             print("PAT !!!")
             gain = "PAT"
+            dessine_echec_joueur(nb_case_echec, ratio, "PAT")
             attend_clic_gauche()
             jouer = False
         else:
@@ -1887,15 +1898,19 @@ def joue(param, jb, jn, nb_case_echec, taille_ecran, taille_jeu,
             if check_echec(id_joueur, id_mvt, prise_passant, joueur_qui_joue,
                            adversaire):
                 print("ECHEC")
+                dessine_echec_joueur(nb_case_echec, ratio, "ECHEC !!")
+                attend_clic_gauche()
                 coupj += "+"
             if check_mat(joueur_qui_joue, adversaire, id_joueur, id_mvt,
                          prise_passant):
                 gain = "MAT"
                 joueur_gagnant = id_joueur
                 coupj += "#"
+                dessine_echec_joueur(nb_case_echec, ratio, "MAT")
                 attend_clic_gauche()
                 jouer = False
             else:
+                dessine_echec_joueur(nb_case_echec, ratio, " ")
                 # On attend l'action qui consite à cliqer sur une piece et la
                 # déplacer
                 attend_clic_gauche()

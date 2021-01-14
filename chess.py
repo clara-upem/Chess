@@ -757,17 +757,14 @@ def mvt_r(x, y, joueur, adversaire, index_piece, id_joueur, prise_passant,
     mvt_roi_mange = mvt_mange_list(mvt_roi, adversaire)
     # On supprimme des mouvements autorises les mouvments mange
     doublon = cherche_doublon(mvt_roi, mvt_roi_mange)
-    # print(f"MVT MANGE ROI {doublon} ")
     mvt_roi = delete_doublon(mvt_roi, doublon)
     if not en_cours_echec:
         # suppresion des mvt, l'ensemble des positions qui mettrait notre
         # roi en echec
         mvt_roi = empeche_echec(mvt_roi, index_piece, joueur, adversaire,
                                 id_joueur, prise_passant)
-        # print(f"MVT ROI sans echec {mvt_roi} ")
         mvt_roi_mange = empeche_echec(mvt_roi_mange, index_piece, joueur,
                                       adversaire, id_joueur, prise_passant)
-        # print(f"MVT MANGE ROI sans echec{mvt_roi_mange} ")
     return mvt_roi, mvt_roi_mange
 
 
@@ -953,7 +950,6 @@ def pat(joueur, adversaire, id_joueur, id_mvt, prise_passant):
     mvt = []
     mange = []
     en_cours_echec = False
-    # print(f"Analyse du PAT {id_joueur} {joueur}")
     trouve_roi, index_roi = cherche_roi(joueur)
     if trouve_roi:
         is_echec = echec(joueur[index_roi][1][0], joueur[
@@ -1126,7 +1122,6 @@ def replay(jeu_str):
         find_dot = e.find('.')
         # joueur pair, fonction find return -1
         if index % 2 == 0 and find_dot < 1:
-            print(f"J1 {e}")
             index += 1
             id_mvt = -1
             j1, j2 = analyse_piece(e, j1, j2, id_mvt)
@@ -1135,7 +1130,6 @@ def replay(jeu_str):
             partie_joue.append(deepcopy(j2))
             partie_coord.append(e)
         elif find_dot < 1:
-            print(f"J2 {e}")
             index += 1
             id_mvt = 1
             j2, j1 = analyse_piece(e, j2, j1, id_mvt)
@@ -1160,14 +1154,12 @@ def analyse_piece(mvt_piece, joueur, adversaire, id_mvt):
     is_mange = False
     coo_x = -1
     coo_y = -1
-    print(f"mvt Piece {mvt_piece}")
     # fonction qui permet de verifier si le caractere est en miniscule car pion
     if mvt_piece[0].islower():
         joueur, is_mange, coo_x, coo_y = analyse_pion(mvt_piece, joueur,
                                                       id_mvt)
     elif mvt_piece[0] == 'Q':
         joueur, is_mange, coo_x, coo_y = analyse_dame(mvt_piece, joueur)
-        print(f"coo piece finale {coo_x}, {coo_y} {is_mange} {joueur}")
     elif mvt_piece[0] == 'N':
         joueur, is_mange, coo_x, coo_y = \
             analyse_cavalier(mvt_piece, joueur, adversaire, prise_passant)
@@ -1373,10 +1365,8 @@ def analyse_pion(mouvement, joueur, id_mvt):
 
 def analyse_dame(mouvement, joueur):
     _, index_piece = cherche_piece("D", joueur)
-    print(f"Mouvement Dame {mouvement[1:]}")
     coo_x, coo_y, _, _, is_mange, is_echec, is_mat, _ = translate(mouvement[
                                                                   1:])
-    print(f"IDX : cherche pion {coo_x} {coo_y} {index_piece}")
     idx = index_piece[0]
     joueur[idx][1] = (coo_x, coo_y)
     print(joueur)
@@ -1967,8 +1957,6 @@ def chess():
                 partie.append((joueur_qui_joue, adversaire))
                 sauvegarde(nb_coup, coupj1, coupj2)
                 nb_coup += 1
-            print(f"joueur 1 {joueur1}")
-            print(f"joueur 2 {joueur2}")
             affiche_set(joueur1, joueur2, [], [])
     if gain[0] == "PAT":
         fin_jeu("1-1")
@@ -1976,8 +1964,7 @@ def chess():
         fin_jeu("1-0")
     else:
         fin_jeu("0-1")
-    print("Merci à bientot")
-    print(f" {len(partie)}")
+    print("Merci à bientôt")
 
 
 if __name__ == '__main__':
