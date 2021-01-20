@@ -737,23 +737,29 @@ def mvt_r(x, y, joueur, adversaire, index_piece, id_joueur, prise_passant,
                     mvt_roi.append((x + i, y + j))
     # roque
     # Petit Rocque
+    print(f"avant roque {mvt_roi}")
     if not roi_r and not tour_pr:
         pas_de_piece_pr = True
         for idx_roi in range(1, 3):
             pas_de_piece_pr = pas_de_piece_pr \
-                and not check_position_piece(x, y + idx_roi, joueur) \
-                and not check_position_piece(x, y + idx_roi, adversaire)
+                and not check_position_piece(x, y - idx_roi, joueur) \
+                and not check_position_piece(x, y - idx_roi, adversaire)
         if pas_de_piece_pr:
-            mvt_roi.append((x, y + 2))
+            mvt_roi.append((x, y - 2))
+    print(f"petit roque {mvt_roi}")
     # Grand rocque
     if not roi_r and not tour_gr:
         pas_de_piece_gr = True
         for idx_roi in range(1, 4):
             pas_de_piece_gr = pas_de_piece_gr \
-                and not check_position_piece(x, y - idx_roi, joueur) \
-                and not check_position_piece(x, y - idx_roi, adversaire)
+                and not check_position_piece(x, y + idx_roi, joueur) \
+                and not check_position_piece(x, y + idx_roi, adversaire)
         if pas_de_piece_gr:
-            mvt_roi.append((x, y - 2))
+            mvt_roi.append((x, y + 2))
+
+    print(f"grand roque {mvt_roi}")
+
+    print(f"var {roi_r} {tour_gr} {tour_pr}")
     mvt_roi_mange = mvt_mange_list(mvt_roi, adversaire)
     # On supprimme des mouvements autorises les mouvments mange
     doublon = cherche_doublon(mvt_roi, mvt_roi_mange)
@@ -1450,6 +1456,15 @@ def mvt_mange_list(mvt, adversaire):
     return mvt_mange
 
 
+def init_var_globale():
+    roi_bouge[0] = False
+    roi_bouge[1] = False
+    tour_bouge[0] = False
+    tour_bouge[1] = False
+    tour_bouge[2] = False
+    tour_bouge[3] = False
+
+
 def roque_possible(id_joueur):
     """
     Permet de savoir si les pieces de roques ont bougées
@@ -1678,10 +1693,10 @@ def sauv_deplacement(piece, pos_init_y, pos_x, pos_y, mange,
     rocque = False
     deplacement = ""
     if piece == 'R':
-        if abs(pos_init_y - pos_y) == 2:
+        if pos_init_y - pos_y == 2:
             deplacement = "O-O"
             rocque = True
-        elif abs(pos_init_y - pos_y) == 3:
+        elif pos_init_y - pos_y == -2:
             deplacement = "O-O-O"
             rocque = True
         else:

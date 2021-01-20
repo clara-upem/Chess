@@ -70,7 +70,6 @@ from chess import pat
 from chess import autre_piece
 from chess import is_double_place
 from chess import chgmt_pion
-from chess import piece_choisit
 from chess import transforme_pion
 from chess import roi_bouge
 from chess import tour_bouge
@@ -81,6 +80,7 @@ from chess import mat
 from chess import init_sauvegarde
 from chess import sauvegarde
 from chess import fin_jeu
+from chess import init_var_globale
 
 from copy import deepcopy
 
@@ -190,13 +190,13 @@ def affiche_accueil(ecran, rayon):
         init_x = ecran // 3
         init_y = ecran // 2
         texte(init_x - decallage - 30, init_y - 5, 'PARAMS', 'black', 'nw',
-              'Helvetica', 15)
+              'Helvetica', 10)
         cercle(init_x - decallage, init_y, rayon)
         texte(2 * init_x - decallage - 25, init_y - 5, 'JOUER', 'black', 'nw',
-              'Helvetica', 15)
+              'Helvetica', 10)
         cercle(2 * init_x - decallage, init_y, rayon)
         texte(3 * init_x - decallage - 33, init_y - 5, 'QUITTER', 'black',
-              'nw', 'Helvetica', 15)
+              'nw', 'Helvetica', 10)
         cercle(3 * init_x - decallage, init_y, rayon)
         attend_clic_gauche()  # attente d'un choix parmi les trois propositions
         # verifie les coo du clic de la souris
@@ -247,16 +247,16 @@ def affiche_param(ecran, rayon):
         init_x = ecran // 4
         init_y = ecran // 2
         texte(init_x - decallage - 30, init_y - 5, 'JOUEUR', 'black', 'nw',
-              'Helvetica', 15)
+              'Helvetica', 10)
         cercle(init_x - decallage, init_y, rayon)
         texte(2 * init_x - decallage - 25, init_y - 5, 'REPLAY', 'black', 'nw',
-              'Helvetica', 15)
+              'Helvetica', 10)
         cercle(2 * init_x - decallage, init_y, rayon)
         texte(3 * init_x - decallage - 37, init_y - 5, 'INIT GAME', 'black',
-              'nw', 'Helvetica', 15)
+              'nw', 'Helvetica', 10)
         cercle(3 * init_x - decallage, init_y, rayon)
         texte(4 * init_x - decallage - 30, init_y - 5, 'QUITTER', 'black',
-              'nw', 'Helvetica', 15)
+              'nw', 'Helvetica', 10)
         cercle(4 * init_x - decallage, init_y, rayon)
         attend_clic_gauche()  # attente d'un choix parmi les trois propositions
         # verifie les coo du clic de la souris
@@ -329,14 +329,14 @@ def affiche_param_joueur(ecran, rayon, param):
                                                       abscisse_souris(),
                                                       ordonnee_souris(), param)
         # Texte nom du joueur
-        texte(40, 160, 'JOUEUR 1 :', 'black', 'nw', 'Helvetica', 24)
+        texte(40, 160, 'JOUEUR 1 :', 'black', 'nw', 'Helvetica', 15)
         rectangle(180, 150, 600, 200)
-        texte(185, 160, nom_j1)
+        texte(185, 160, nom_j1, taille=15)
         # Choix de la couleur
-        texte(180, 220, 'Blanc : ', 'black', 'nw', 'Helvetica', 24)
-        texte(180, 270, 'Noir : ', 'black', 'nw', 'Helvetica', 24)
-        texte(180, 420, 'Blanc : ', 'black', 'nw', 'Helvetica', 24)
-        texte(180, 470, 'Noir : ', 'black', 'nw', 'Helvetica', 24)
+        texte(180, 220, 'Blanc : ', 'black', 'nw', 'Helvetica', 15)
+        texte(180, 270, 'Noir : ', 'black', 'nw', 'Helvetica', 15)
+        texte(180, 420, 'Blanc : ', 'black', 'nw', 'Helvetica', 15)
+        texte(180, 470, 'Noir : ', 'black', 'nw', 'Helvetica', 15)
         if param[1] == "B":
             cercle(280, 235, 10, remplissage='black')
             cercle(280, 285, 10)
@@ -348,10 +348,10 @@ def affiche_param_joueur(ecran, rayon, param):
             cercle(280, 435, 10, remplissage='black')
             cercle(280, 485, 10)
         # Choix de la position
-        texte(380, 220, 'Haut : ', 'black', 'nw', 'Helvetica', 24)
-        texte(380, 270, 'Bas : ', 'black', 'nw', 'Helvetica', 24)
-        texte(380, 420, 'Haut : ', 'black', 'nw', 'Helvetica', 24)
-        texte(380, 470, 'Bas : ', 'black', 'nw', 'Helvetica', 24)
+        texte(380, 220, 'Haut : ', 'black', 'nw', 'Helvetica', 15)
+        texte(380, 270, 'Bas : ', 'black', 'nw', 'Helvetica', 15)
+        texte(380, 420, 'Haut : ', 'black', 'nw', 'Helvetica', 15)
+        texte(380, 470, 'Bas : ', 'black', 'nw', 'Helvetica', 15)
         if param[2] == -1:
             cercle(480, 235, 10, remplissage='black')
             cercle(480, 285, 10)
@@ -362,13 +362,13 @@ def affiche_param_joueur(ecran, rayon, param):
             cercle(480, 285, 10, remplissage='black')
             cercle(480, 435, 10, remplissage='black')
             cercle(480, 485, 10)
-        texte(40, 360, 'JOUEUR 2 :', 'black', 'nw', 'Helvetica', 24)
+        texte(40, 360, 'JOUEUR 2 :', 'black', 'nw', 'Helvetica', 15)
         rectangle(180, 350, 600, 400)
-        texte(185, 360, nom_j2)
+        texte(185, 360, nom_j2, taille=15)
         # Validation
         cercle(ecran // 2, ecran - 100, rayon)
         texte(ecran // 2 - 30, ecran - 105, "VALIDER", 'black', 'nw',
-              'Helvetica', 15)
+              'Helvetica', 10)
         mise_a_jour()
         if valide:
             menu = False
@@ -457,13 +457,13 @@ def affiche_param_replay(ecran, rayon):
             valide = click_cercle_param_replay(ecran, rayon, abscisse_souris(),
                                                ordonnee_souris())
         # Texte nom du joueur
-        texte(20, 170, 'NOM FICHIER :', 'black', 'nw', 'Helvetica', 15)
+        texte(20, 170, 'NOM FICHIER :', 'black', 'nw', 'Helvetica', 10)
         rectangle(130, 150, 670, 200)
-        texte(135, 170, fichier, taille=15)
+        texte(135, 170, fichier, taille=10)
         # Validation
         cercle(ecran // 2, ecran - 100, rayon)
         texte(ecran // 2 - 30, ecran - 105, "VALIDER", 'black', 'nw',
-              'Helvetica', 15)
+              'Helvetica', 10)
         mise_a_jour()
         if valide:
             menu = False
@@ -522,21 +522,21 @@ def affiche_param_init(ecran, rayon):
             fichier = ""
             position_focus = 0
         # Texte position
-        texte(40, 170, 'position :', 'black', 'nw', 'Helvetica', 15)
+        texte(40, 170, 'position :', 'black', 'nw', 'Helvetica', 10)
         rectangle(130, 150, 670, 200)
-        texte(135, 170, fichier, taille=15)
+        texte(135, 170, fichier, taille=10)
         # Choix de la position initiale
-        texte(40, 225, "Standard", 'black', 'nw', 'Helvetica', 15)
-        texte(40, 255, "Prise en passant", 'black', 'nw', 'Helvetica', 15)
-        texte(40, 285, 'Roque', 'black', 'nw', 'Helvetica', 15)
-        texte(40, 315, 'Pion evolution', 'black', 'nw', 'Helvetica', 15)
-        texte(40, 345, 'deplacement tour', 'black', 'nw', 'Helvetica', 15)
-        texte(40, 375, 'deplacement fou', 'black', 'nw', 'Helvetica', 15)
-        texte(40, 405, 'deplacement cheval', 'black', 'nw', 'Helvetica', 15)
-        texte(40, 435, 'deplacement roi', 'black', 'nw', 'Helvetica', 15)
-        texte(40, 465, 'deplacement reine', 'black', 'nw', 'Helvetica', 15)
-        texte(40, 495, 'deplacement pion', 'black', 'nw', 'Helvetica', 15)
-        texte(40, 525, 'Jeux Mat en 2 coups', 'black', 'nw', 'Helvetica', 15)
+        texte(40, 225, "Standard", 'black', 'nw', 'Helvetica', 10)
+        texte(40, 255, "Prise en passant", 'black', 'nw', 'Helvetica', 10)
+        texte(40, 285, 'Roque', 'black', 'nw', 'Helvetica', 10)
+        texte(40, 315, 'Pion evolution', 'black', 'nw', 'Helvetica', 10)
+        texte(40, 345, 'deplacement tour', 'black', 'nw', 'Helvetica', 10)
+        texte(40, 375, 'deplacement fou', 'black', 'nw', 'Helvetica', 10)
+        texte(40, 405, 'deplacement cheval', 'black', 'nw', 'Helvetica', 10)
+        texte(40, 435, 'deplacement roi', 'black', 'nw', 'Helvetica', 10)
+        texte(40, 465, 'deplacement reine', 'black', 'nw', 'Helvetica', 10)
+        texte(40, 495, 'deplacement pion', 'black', 'nw', 'Helvetica', 10)
+        texte(40, 525, 'Jeux Mat en 2 coups', 'black', 'nw', 'Helvetica', 10)
         cercle(200, 230, 10)
         cercle(200, 260, 10)
         cercle(200, 290, 10)
@@ -553,7 +553,7 @@ def affiche_param_init(ecran, rayon):
         # Validation
         cercle(ecran // 2, ecran - 100, rayon)
         texte(ecran // 2 - 30, ecran - 105, "VALIDER", 'black', 'nw',
-              'Helvetica', 15)
+              'Helvetica', 10)
         mise_a_jour()
         if valide:
             menu = False
@@ -683,6 +683,31 @@ def get_piece(piece):
         return "P"
 
 
+def get_piece_fr(piece):
+    """
+    Permet de traduire les pieces en anglais
+    :param piece: str
+    :return: str
+
+    >>> get_piece_fr('T')
+    'R'
+    """
+    if piece == 'T':
+        return "R"
+    elif piece == 'C':
+        return "N"
+    elif piece == 'F':
+        return "B"
+    elif piece == 'D':
+        return "Q"
+    elif piece == 'R':
+        return "K"
+    elif piece == 'P':
+        return "P"
+    else:
+        return piece
+
+
 def check_position_mouvement(pox_x, pos_y, list_mvt):
     """
     Permet de verifier la position du mouvement
@@ -720,7 +745,7 @@ def dessine_jeu(largeur, largeur_jeu, decallage_plateau, nb_carre_ligne, name,
     """
     decallage_alphabet = 30
     decallage_numero = 10
-    regul_police = 12
+    regul_police = 7
     top_x = largeur - decallage_plateau - largeur_jeu
     top_y = (largeur - largeur_jeu) // 2
     ratio = largeur_jeu // nb_carre_ligne
@@ -793,23 +818,23 @@ def dessine_plateau(largeur, largeur_jeu, decallage_plateau, nb_carre_ligne,
         else:
             tour_joueur = str(param[3])
     if sens_jeux == -1:
-        texte(20, top_y + (ratio // 4), param[3], taille=24, tag="joueur")
+        texte(20, top_y + (ratio // 4), param[3], taille=15, tag="joueur")
         texte(20, ratio * (nb_carre_ligne + 1), param[0],
-              taille=24, tag="joueur")
+              taille=15, tag="joueur")
         texte(20, top_y + (ratio // 4) + 30, "score : " + str(score_j2),
-              taille=20, tag='score')
+              taille=15, tag='score')
         texte(20, ratio * (nb_carre_ligne + 1) + 30,
-              "score : " + str(score_j1), taille=20, tag='score')
+              "score : " + str(score_j1), taille=15, tag='score')
     else:
-        texte(20, top_y + (ratio // 4), param[0], taille=24, tag="joueur")
+        texte(20, top_y + (ratio // 4), param[0], taille=15, tag="joueur")
         texte(20, ratio * (nb_carre_ligne + 1), param[3],
-              taille=24, tag="joueur")
+              taille=15, tag="joueur")
         texte(20, top_y + (ratio // 4) + 30, "score : " + str(score_j1),
-              taille=20, tag='score')
+              taille=15, tag='score')
         texte(20, ratio * (nb_carre_ligne + 1) + 30,
-              "score : " + str(score_j2), taille=20, tag='score')
+              "score : " + str(score_j2), taille=15, tag='score')
     texte(20, ratio * (nb_carre_ligne + 1) // 2 + 50, tour_joueur,
-          taille=24, tag="tour")
+          taille=15, tag="tour")
     # dessine les pieces
     for piece in joueur_b:
         piece_x, piece_y = case_vers_pixel(piece[1][0], piece[1][1], largeur,
@@ -822,7 +847,7 @@ def dessine_plateau(largeur, largeur_jeu, decallage_plateau, nb_carre_ligne,
                                            ratio)
         dessine_piece("P_" + str(piece[0]) + "_N", piece_x, piece_y)
     texte(top_x + (2 * largeur_jeu // 4) - 10, largeur - 65, nb_coups // 2,
-          taille=24, tag="nbCoup")
+          taille=15, tag="nbCoup")
     mise_a_jour()
 
 
@@ -865,7 +890,7 @@ def dessine_case(clear_mouvement, nb_carre_ligne, top_x, top_y, ratio, largeur,
 
 def dessine_piece(type_piece, x, y):
     """
-    Permet d 'afficher les immages des piece
+    Permet d 'afficher les images des piece
     :param type_piece: str
     :param x: int
     :param y: int
@@ -999,7 +1024,7 @@ def dessine_coup_joueur(nb_case_echec, ratio, mouv):
     :return:none
     """
     efface('mouv')
-    texte(20, ratio * (nb_case_echec + 1) // 2 + 80, mouv, taille=24,
+    texte(20, ratio * (nb_case_echec + 1) // 2 + 80, mouv, taille=15,
           tag="mouv")
     mise_a_jour()
 
@@ -1014,19 +1039,20 @@ def dessine_tour_joueur(nb_case_echec, ratio, joueur):
     """
     efface("tour")
     texte(20, ratio * (nb_case_echec + 1) // 2 + 50, joueur,
-          taille=24, tag="tour")
+          taille=15, tag="tour")
     mise_a_jour()
 
-def dessine_echec_joueur(nb_case_echec, ratio, echec):
+
+def dessine_echec_joueur(nb_case_echec, ratio, txt_echec):
     """
     Permet de rafraichir seulement le coup du joueur
     :param nb_case_echec: int
     :param ratio: int
-    :param mouv: str
+    :param txt_echec: str
     :return:none
     """
     efface('echec')
-    texte(20, ratio * (nb_case_echec + 1) // 2 + 110, echec, taille=24,
+    texte(20, ratio * (nb_case_echec + 1) // 2 + 110, txt_echec, taille=15,
           tag="echec", couleur="red")
     mise_a_jour()
 
@@ -1077,7 +1103,7 @@ def init_plateau():
                           "KQkq - 0 1")
     prise_en_passant = ("Le Pion", "8/1pppppp1/8/8/8/8/1PPPPPP1/8 w "
                                    "KQkq - 0 1")
-    rocque = ("Rocque", "r2k3r/8/8/8/8/8/8/R2K3R w KQkq - 0 1")
+    rocque = ("Rocque", "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1")
     pion_upgrade = ("Pion Upgrade", "8/8/P/8/8/p/8/8 w KQkq - 0 1")
     deplacment_tour = ("Tour", "8/8/8/3rR3/8/8/8/8 w KQkq - 0 1")
     deplacement_fou = ("Fou", "8/8/8/3bB3/8/8/8/8 w KQkq - 0 1")
@@ -1657,7 +1683,7 @@ def check_mouvement_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
                 _, index_pos = name_piece(old_x, 0, joueur_qui_joue)
                 joueur_qui_joue[index_pos][1] = (old_x, old_y - 1)
         coupj = sauv_deplacement(piece, old_y, pos_x, pos_y, "",
-                                 ambiguite, decision)
+                                 ambiguite, get_piece_fr(decision))
         list_mvt_deplacement = []
         list_mvt_mange = []
         change_joueur = True
@@ -1768,7 +1794,7 @@ def check_mouvement_mange_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
                     roi_bouge[0] = True
                 else:
                     roi_bouge[1] = True
-            # pion atteint la ligne ennemi et peux setransformer
+            # pion atteint la ligne ennemi et peux se transformer
             # tout en mangeant
             if (pos_x == 0 or pos_x == 7) and piece == "P":
                 choix = chgmt_pion(joueur_qui_joue)
@@ -1777,7 +1803,7 @@ def check_mouvement_mange_jeu(pos_x, pos_y, piece, old_x, old_y, index_pos,
                                                   index_pos,
                                                   decision)
             coupj = sauv_deplacement(piece, old_y, pos_x, pos_y, "x",
-                                     ambiguite, decision)
+                                     ambiguite, get_piece_fr(decision))
             piecem, index_piece_manger = name_piece(pos_x,
                                                     pos_y,
                                                     adversaire)
@@ -2193,6 +2219,10 @@ def main():
                             decallage_plateau, replay_jeu_complet, param, -1,
                             partie_coord)
                 menu = 1
+                file_replay = ""
+                option = 2
+                action_apprentissage = False
+                init_var_globale()
             else:
                 action_replay = False
                 # On affiche le plateau avec les bon paramètre
@@ -2205,6 +2235,10 @@ def main():
                      taille_jeu, decallage_plateau, replay_jeu_complet,
                      sens_jeux)
                 menu = 1
+                file_replay = ""
+                option = 2
+                action_apprentissage = False
+                init_var_globale()
     generique(taille_ecran)
     ferme_fenetre()
 
